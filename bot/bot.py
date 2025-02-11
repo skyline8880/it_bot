@@ -56,8 +56,7 @@ class ITBot(Bot):
             3: Secrets.NKR_IT_GROUP,
             4: Secrets.BUT_IT_GROUP,
         }
-        # to_chat_id = GROUPS[request_data[0]]
-        to_chat_id = Secrets.ADMINS_GROUP
+        to_chat_id = GROUPS[request_data[0]]
         db = Database()
         match message.content_type:
             case ContentType.AUDIO:

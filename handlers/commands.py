@@ -16,11 +16,10 @@ router.message.middleware(UserAuthFilter())
 
 @router.message()
 async def get_message(message: Message) -> None:
-    check_db = Database()
-    await check_db.check_updates(message=message)
     if message.chat.type == ChatType.PRIVATE.value:
         async def sample_break_detector(message_text: str) -> list:
             db = Database()
+            await db.check_updates(message=message)
             if message_text is None:
                 return await message.answer(
                     text=wrong_sample())

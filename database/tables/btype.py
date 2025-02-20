@@ -12,6 +12,7 @@ class Btype:
         self.sound = "Музыка"
         self.tablet = "Планшет"
         self.accont = "СКУД"
+        self.emptablet = "Планшет для сотрудников"
 
     def __str__(self) -> str:
         return "btype"

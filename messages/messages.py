@@ -24,6 +24,11 @@ def accept_contact() -> str:
         sep='\n')
 
 
+def scan_qr_add_message() -> str:
+    return markdown.text(
+            'Отсканируйте QR-код и добавьте сообщение.', sep='\n')
+
+
 def sample_key_break(sample: str, element: str) -> str:
     return markdown.text(
         markdown.markdown_decoration.quote(

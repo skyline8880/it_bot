@@ -1,119 +1,152 @@
-from aiogram import Router
-from aiogram.enums.chat_type import ChatType
-from aiogram.enums.content_type import ContentType
+from datetime import datetime
+from secrets.secrets import Secrets
+from urllib.parse import unquote
+
+from aiogram import F, Router
+from aiogram.enums import ChatType
+from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message
 
-from bot.bot import bot
 from database.database import Database
-from messages.messages import (accept_request, sample_key_break,
-                               sample_key_value_pair_break, sample_value_break,
-                               wrong_sample)
+from messages.messages import request_form, scan_qr_add_message, wrong_sample
 from middleware.auth_middleware import UserAuthFilter
+from utils.utils import safe_send_message
 
 router = Router()
 router.message.middleware(UserAuthFilter())
+secrets = Secrets()
+
+ADMIN_CHAT_ID = secrets.ADMINS_GROUP
+user_temp_data = {}
 
 
-@router.message()
-async def get_message(message: Message) -> None:
-    if message.chat.type == ChatType.PRIVATE.value:
-        async def sample_break_detector(message_text: str) -> list:
-            db = Database()
-            await db.check_updates(message=message)
-            if message_text is None:
-                return await message.answer(
-                    text=wrong_sample())
-            msg_list = message_text.split("\n")
-            if len(msg_list) < 5:
-                return await message.answer(
-                    text=wrong_sample())
-            result = []
-            for index, element in enumerate(msg_list):
-                if ":" not in element:
-                    return await message.answer(
-                        text=sample_key_value_pair_break(element=element))
-                if index < 4:
-                    try:
-                        element, value = element.split(":")
-                    except Exception:
-                        return await message.answer(
-                            text=sample_key_value_pair_break(element=element))
-                else:
-                    try:
-                        desc_element = element.split(":")
-                    except Exception:
-                        return await message.answer(
-                            text=sample_key_value_pair_break(element=element)
-                        )
-                element = element.strip().capitalize()
-                value = value.strip().capitalize()
-                if index == 0:
-                    if element != "Клуб":
-                        return await message.answer(
-                            text=sample_key_break(
-                                sample="Клуб", element=element)
-                        )
-                    depart = await db.select_department_by_sign(sign=value)
-                    if depart is None:
-                        return await message.answer(
-                            text=sample_value_break(key="Клуб", value=value)
-                        )
-                    result.append(depart[0])
-                if index == 1:
-                    if element != "Этаж":
-                        return await message.answer(
-                            text=sample_key_break(
-                                sample="Этаж", element=element)
-                        )
-                    floor = await db.select_floor_by_sign(sign=value)
-                    if floor is None:
-                        return await message.answer(
-                            text=sample_value_break(key="Этаж", value=value)
-                        )
-                    result.append(floor[0])
-                if index == 2:
-                    if element != "Зона":
-                        return await message.answer(
-                            text=sample_key_break(
-                                sample="Зона", element=element)
-                        )
-                    zone = await db.select_zone_by_sign(sign=value)
-                    if zone is None:
-                        return await message.answer(
-                            text=sample_value_break(key="Зона", value=value)
-                        )
-                    result.append(zone[0])
-                if index == 3:
-                    if element != "Поломка":
-                        return await message.answer(
-                            text=sample_key_break(
-                                sample="Поломка", element=element)
-                        )
-                    btype = await db.select_btype_by_sign(sign=value)
-                    if btype is None:
-                        return await message.answer(
-                            text=sample_value_break(
-                                key="Поломка", value=value)
-                        )
-                    result.append(btype[0])
-                if index == 4:
-                    if desc_element[0] != "Описание":
-                        return await message.answer(
-                            text=sample_key_break(
-                                sample="Описание", element=element))
-                    print(msg_list)
-                    head_desc_list = msg_list[4].split(":")
-                    if len(head_desc_list) > 1:
-                        head_desc_list = " ".join(head_desc_list[1:]).strip()
-                    tail_desc = " ".join(msg_list[5:]).strip()
-                    result.append(f"{head_desc_list} {tail_desc}")
-            return result
-        text_msg = message.text
-        if message.content_type != ContentType.TEXT:
-            text_msg = message.caption
-        request_data = await sample_break_detector(message_text=text_msg)
-        if isinstance(request_data, Message):
-            return
-        sent = await bot.create_request(
-            request_data=request_data, message=message)
-        await message.reply(text=accept_request(sent=sent))
+@router.message(CommandStart())
+async def start_cmd(message: Message, command: CommandObject):
+    if command.args:
+        await handle_qr_data(message, unquote(command.args))
+    else:
+        await safe_send_message(message.chat.id, scan_qr_add_message())
+
+
+@router.message(Command("cancel"))
+async def cancel_cmd(message: Message):
+    user_temp_data.pop(message.from_user.id, None)
+    await safe_send_message(message.chat.id, "Текущая заявка отменена")
+
+
+async def handle_qr_data(message: Message, qr_data: str):
+    parts = qr_data.strip().split('-')
+    if len(parts) != 4 or not all(p.isdigit() for p in parts):
+        await safe_send_message(message.chat.id, wrong_sample())
+        return
+
+    user_temp_data[message.from_user.id] = {
+        'qr_data': parts,
+        'step': 'wait_description'
+    }
+    await safe_send_message(message.chat.id, "Теперь опишите проблему:")
+
+
+@router.message(F.text.contains('t.me/Budosan_bot?text='))
+async def handle_qr_url(message: Message):
+    try:
+        qr_data = unquote(message.text.split('text=')[1].split('%0A')[0])
+        await handle_qr_data(message, qr_data)
+    except Exception as e:
+        print(f"QR URL error: {e}")
+        await safe_send_message(message.chat.id, wrong_sample())
+
+
+@router.message(F.text.regexp(r'^\d+-\d+-\d+-\d+$'))
+async def handle_manual_input(message: Message):
+    await handle_qr_data(message, message.text)
+
+
+@router.message(F.chat.type == ChatType.PRIVATE)
+async def handle_private_message(message: Message):
+    user_id = message.from_user.id
+    text = message.text or message.caption or ""
+
+    if text.strip() == scan_qr_add_message():
+        return
+
+    if (user_id in user_temp_data
+            and user_temp_data[user_id]['step'] == 'wait_description'):
+
+        db = Database()
+        try:
+            (
+                club_id,
+                floor_id,
+                zone_id,
+                issue_id
+            ) = user_temp_data[user_id]['qr_data']
+
+            club = await db.select_department_by_sign(sign=club_id)
+            floor = await db.select_floor_by_sign(sign=floor_id)
+            zone = await db.select_zone_by_sign(sign=zone_id)
+            issue = await db.select_btype_by_sign(sign=issue_id)
+
+            if None in (club, floor, zone, issue):
+                await message.answer("Ошибка: данные не найдены в БД")
+                return
+
+            # Получаем данные сотрудника из БД
+            employee = await db.select_employee_by_sign(str(user_id))
+            if not employee:
+                # Если не нашли по telegram_id
+                if message.from_user.username:
+                    employee = await db.select_employee_by_sign(
+                        message.from_user.username)
+
+            if not employee:
+                await message.answer("❌ Ошибка: ваш профиль не найден")
+                return
+
+            # Распаковываем данные сотрудника
+            (
+                employee_id,
+                is_admin,
+                phone,
+                telegram_id,
+                full_name,
+                db_username
+            ) = employee
+
+            # Подготавливаем данные для request_form
+            request_data = (
+                None,  # request_id
+                datetime.now(),  # create_date
+                club[0],  # department_id
+                club[1],  # department_name
+                floor[0],  # floor_id
+                floor[1],  # floor_name
+                zone[0],  # zone_id
+                zone[1],  # zone_name
+                issue[0],  # btype_id
+                issue[1],  # btype_name
+                message.message_id,  # message_id
+                user_id,  # creator
+                employee_id,  # employee_id
+                is_admin,  # employee_is_admin
+                phone or "Не указан",  # employee_phone
+                full_name or message.from_user.full_name,
+                f"{db_username}" if db_username else "Не указан",
+                text.strip(),  # request_description
+                None  # request_file_id
+            )
+
+            request_text = request_form(request_data)
+
+            await message.bot.send_message(
+                chat_id=ADMIN_CHAT_ID,
+                text=request_text
+            )
+
+            await message.answer("✅ Заявка успешно отправлена")
+
+        except Exception as e:
+            print(f"Ошибка при обработке заявки: {e}")
+            await message.answer("❌ Ошибка при отправке заявки")
+        finally:
+            user_temp_data.pop(user_id, None)

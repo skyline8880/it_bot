@@ -47,21 +47,6 @@ async def handle_qr_data(message: Message, qr_data: str):
     await safe_send_message(message.chat.id, "Теперь опишите проблему:")
 
 
-@router.message(F.text.contains('t.me/Budosan_bot?text='))
-async def handle_qr_url(message: Message):
-    try:
-        qr_data = unquote(message.text.split('text=')[1].split('%0A')[0])
-        await handle_qr_data(message, qr_data)
-    except Exception as e:
-        print(f"QR URL error: {e}")
-        await safe_send_message(message.chat.id, wrong_sample())
-
-
-@router.message(F.text.regexp(r'^\d+-\d+-\d+-\d+$'))
-async def handle_manual_input(message: Message):
-    await handle_qr_data(message, message.text)
-
-
 @router.message(F.chat.type == ChatType.PRIVATE)
 async def handle_private_message(message: Message):
     user_id = message.from_user.id
@@ -93,11 +78,9 @@ async def handle_private_message(message: Message):
 
             # Получаем данные сотрудника из БД
             employee = await db.select_employee_by_sign(str(user_id))
-            if not employee:
-                # Если не нашли по telegram_id
-                if message.from_user.username:
-                    employee = await db.select_employee_by_sign(
-                        message.from_user.username)
+            if not employee and message.from_user.username:
+                employee = await db.select_employee_by_sign(
+                    message.from_user.username)
 
             if not employee:
                 await message.answer("❌ Ошибка: ваш профиль не найден")
@@ -113,7 +96,19 @@ async def handle_private_message(message: Message):
                 db_username
             ) = employee
 
-            # Подготавливаем данные для request_form
+            # ЗАПИСЬ В БД
+            await db.insert_request(
+                department_id=club[0],
+                floor_id=floor[0],
+                zone_id=zone[0],
+                btype_id=issue[0],
+                message_id=message.message_id,
+                creator=user_id,
+                description=text.strip(),
+                file_id=message.document.file_id if message.document else None
+            )
+
+            # Формируем заявку (без изменений)
             request_data = (
                 None,  # request_id
                 datetime.now(),  # create_date

@@ -10,7 +10,8 @@ exclude =
     docs/source/conf.py,
     old,
     build,
-    dist
-    test.py
+    dist,
+    test.py,
+    qr.py,
     QR/
 max-complexity = 10

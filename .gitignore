@@ -174,3 +174,4 @@ cython_debug/
 # Special Custom Dirs And Files
 QR/
 test.py
+qr.py

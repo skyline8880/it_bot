@@ -9,6 +9,8 @@ from bot.bot import ITBot
 from secrets.secrets import Secrets
 from messages.messages import (now_description_message, invalid_qr_format,
                                request_cancelled,
+                               equipment_not_found,
+                               profile_not_found,
                                request_sent_success,
                                request_error,
                                processing_error,
@@ -79,11 +81,19 @@ async def handle_private_message(message: Message, bot: ITBot):
         zone = await db.select_zone_by_sign(zone_id)
         issue = await db.select_btype_by_sign(issue_id)
 
+        if None in (club, floor, zone, issue):
+            await message.answer(equipment_not_found())
+            return
+
         # Получаем данные сотрудника
         employee = await db.select_employee_by_sign(str(user_id))
         if not employee and message.from_user.username:
             employee = await db.select_employee_by_sign(
                 message.from_user.username)
+
+        if not employee:
+            await message.answer(profile_not_found())
+            return
 
         # Формируем данные для заявки
         request_data = [

@@ -1,6 +1,75 @@
 import datetime as dt
-
 from aiogram.utils import markdown
+
+
+def now_description_message() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '📝 Теперь опишите проблему:'),
+        sep='\n')
+
+
+def invalid_qr_format() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Неверный формат QR-кода'),
+        sep='\n')
+
+
+def request_cancelled() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Текущая заявка отменена'),
+        sep='\n')
+
+
+def equipment_not_found() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Данные оборудования не найдены'),
+        sep='\n')
+
+
+def profile_not_found() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Ваш профиль не найден'),
+        sep='\n')
+
+
+def request_sent_success() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '✅ Заявка успешно отправлена'),
+        sep='\n')
+
+
+def request_error() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Ошибка при отправке заявки'),
+        sep='\n')
+
+
+def processing_error() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '❌ Ошибка при обработке заявки'),
+        sep='\n')
+
+
+def start_instruction() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            '🔍 Для создания заявки отсканируйте QR-код.'),
+        sep='\n')
+
+
+def scan_qr_message() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            'ℹ️ Сначала отсканируйте QR-код'),
+        sep='\n')
 
 
 def need_auth(name) -> str:

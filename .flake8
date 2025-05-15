@@ -12,6 +12,6 @@ exclude =
     build,
     dist,
     test.py,
-    qr.py,
+    qr*.py,
     QR/
 max-complexity = 10

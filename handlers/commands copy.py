@@ -1,25 +1,21 @@
-from urllib.parse import unquote
-from aiogram import F, Router
-from aiogram.filters import Command, CommandStart, CommandObject
-from aiogram.types import Message
-from aiogram.enums import ChatType
-from cachetools import TTLCache
-from database.database import Database
-from bot.bot import ITBot
 from secrets.secrets import Secrets
-from messages.messages import (now_description_message, invalid_qr_format,
-                               request_cancelled,
-                               equipment_not_found,
-                               profile_not_found,
-                               request_sent_success,
-                               request_error,
-                               processing_error,
-                               start_instruction,
-                               scan_qr_message,
-                               wrong_sample
-                               )
-from middleware.auth_middleware import UserAuthFilter
+from urllib.parse import unquote
 
+from aiogram import F, Router
+from aiogram.enums import ChatType
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.types import Message
+from cachetools import TTLCache
+
+from bot.bot import ITBot
+from database.database import Database
+from messages.messages import (equipment_not_found, invalid_qr_format,
+                               now_description_message, processing_error,
+                               profile_not_found, request_cancelled,
+                               request_error, request_sent_success,
+                               scan_qr_message, start_instruction,
+                               wrong_sample)
+from middleware.auth_middleware import UserAuthFilter
 
 router = Router()
 router.message.middleware(UserAuthFilter())

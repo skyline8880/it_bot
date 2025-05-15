@@ -21,6 +21,7 @@ class UserAuthFilter(BaseMiddleware):
             result = await db.select_employee_by_sign(
                 sign=event.from_user.id)
             if event.contact is not None:
+                await event.delete()
                 if event.contact.user_id == event.from_user.id:
                     result = await db.insert_employee(message=event)
                     if result is not None:

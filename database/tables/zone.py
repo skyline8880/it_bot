@@ -18,6 +18,18 @@ class Zone:
         self.ant = "Антресоль"
         self.tech = "Техническая зона"
         self.pool = "Бассейн"
+        self.entry = "Вход"
+        self.kidclubcenter = "Детский клуб (центр)"
+        self.kidclubsport = "Детский клуб (спорт)"
+        self.kidclubedu = "Детский клуб (учебный)"
+        self.gpyoga = "ГП Йога"
+        self.gp1 = "ГП 1"
+        self.gp2 = "ГП 2"
+        self.inbody = "Инбади"
+        self.mlocker = "Раздевалка (мужская)"
+        self.flocker = "Раздевалка (женская)"
+        self.staffarea = "Служебное помещение"
+        self.stairs = "Лестница"
 
     def __str__(self) -> str:
         return "zone"

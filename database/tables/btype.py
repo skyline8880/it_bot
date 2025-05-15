@@ -13,6 +13,9 @@ class Btype:
         self.tablet = "Планшет"
         self.accont = "СКУД"
         self.emptablet = "Планшет для сотрудников"
+        self.eclock = "Электронные часы"
+        self.treader = "Считыватель полотенец"
+        self.solar = "Солярий (планшет)"
 
     def __str__(self) -> str:
         return "btype"

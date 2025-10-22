@@ -1,12 +1,12 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
-
+from filters.filters import CreatingRequest
 from aiogram import F, Router
 from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message
 from cachetools import TTLCache
-
+from states.states import DepartChoice
 from keyboards.depart_kbrd import create_depart_buttons
 from bot.bot import ITBot
 from database.database import Database
@@ -64,7 +64,7 @@ async def handle_qr_url(message: Message):
         await message.answer(wrong_sample())
 
 
-@router.message(F.chat.type == ChatType.PRIVATE)
+@router.message(F.chat.type == ChatType.PRIVATE, ~CreatingRequest())
 async def handle_private_message(message: Message, bot: ITBot):
     user_id = message.from_user.id
     if user_id not in qr_cache:

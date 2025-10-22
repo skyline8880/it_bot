@@ -60,7 +60,6 @@ async def handle_qr_url(message: Message):
 
 @router.message(F.chat.type == ChatType.PRIVATE)
 async def handle_private_message(message: Message, bot: ITBot):
-    print(message)
     user_id = message.from_user.id
     if user_id not in qr_cache:
         await message.answer(scan_qr_message())

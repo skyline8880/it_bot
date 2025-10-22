@@ -3,6 +3,26 @@ import datetime as dt
 from aiogram.utils import markdown
 
 
+def start_menu():
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        'Выберите клуб, в котором'),
+    markdown.markdown_decoration.quote(
+        'хотите создать заявку:'),
+    sep='\n')
+
+
+def detail_desc(dep_name: str):
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'Выбран: {dep_name}.'),
+    markdown.markdown_decoration.quote(
+        'Подробно опишите проблему и'),
+    markdown.markdown_decoration.quote(
+        'и укажите где зафиксировали.'),
+    sep='\n')
+
+
 def now_description_message() -> str:
     return markdown.text(
         markdown.markdown_decoration.quote(

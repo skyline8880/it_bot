@@ -7,6 +7,13 @@ from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.zone import Zone
 
+
+SELECT_DEPARTMENTS = f"""
+    SELECT
+        {Department().ID},
+        {Department().NAME}
+    FROM {Secrets.SCHEMA_NAME}.{Department()};
+"""
 SELECT_DEPARTMENT_BY_SIGN = f"""
     SELECT
         {Department().ID},

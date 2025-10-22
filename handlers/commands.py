@@ -7,13 +7,14 @@ from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message
 from cachetools import TTLCache
 
+from keyboards.depart_kbrd import create_depart_buttons
 from bot.bot import ITBot
 from database.database import Database
 from messages.messages import (invalid_qr_format, now_description_message,
                                processing_error, request_cancelled,
                                request_error, request_sent_success,
                                scan_qr_message, start_instruction,
-                               wrong_sample)
+                               wrong_sample, start_menu, detail_desc)
 from middleware.auth_middleware import UserAuthFilter
 
 router = Router()
@@ -36,7 +37,12 @@ async def start_cmd(message: Message, command: CommandObject):
         else:
             await message.answer(invalid_qr_format())
     else:
-        await message.answer(start_instruction())
+        # await message.answer(start_instruction())
+        await message.answer(
+            text=start_menu(),
+            reply_markup=await create_depart_buttons()
+        )
+        #print("start menu")
 
 
 @router.message(Command("cancel"))

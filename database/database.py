@@ -1,5 +1,5 @@
 from secrets.secrets import Secrets
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 
 from aiogram.types import Message
 from psycopg.errors import UniqueViolation
@@ -8,6 +8,7 @@ from database.connection.connection import DBConnection
 from database.queries.create import CREATE
 from database.queries.insert import INSERT_INTO_EMPLOYEE, INSERT_INTO_REQUEST
 from database.queries.select import (SELECT_BTYPE_BY_SIGN,
+                                     SELECT_DEPARTMENTS,
                                      SELECT_DEPARTMENT_BY_SIGN,
                                      SELECT_EMPLOYEE_BY_SIGN,
                                      SELECT_FLOOR_BY_SIGN,
@@ -81,6 +82,14 @@ class Database():
                     await con.rollback()
             await con.commit()
         await con.close()
+
+    async def select_departments(self) -> List[Tuple[Union[int, str]]]:
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(query=SELECT_DEPARTMENTS)
+        result = await cur.fetchall()
+        await con.close()
+        return result
 
     async def select_department_by_sign(self, sign: Union[int, str]) -> Tuple:
         con = await self.connection()

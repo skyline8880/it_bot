@@ -1,6 +1,7 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
 from filters.filters import CreatingRequest
+from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject, CommandStart
@@ -28,7 +29,7 @@ def validate_qr_format(qr_data: str) -> bool:
 
 
 @router.message(CommandStart())
-async def start_cmd(message: Message, command: CommandObject):
+async def start_cmd(message: Message, command: CommandObject, state: FSMContext):
     if command.args:
         qr_data = unquote(command.args)
         if validate_qr_format(qr_data):
@@ -38,6 +39,7 @@ async def start_cmd(message: Message, command: CommandObject):
             await message.answer(invalid_qr_format())
     else:
         # await message.answer(start_instruction())
+        await state.set_state(DepartChoice.dep_id)
         await message.answer(
             text=start_menu(),
             reply_markup=await create_depart_buttons()

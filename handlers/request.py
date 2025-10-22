@@ -26,7 +26,6 @@ router.message.middleware(UserAuthFilter())
 
 @router.callback_query(DepartmentsCD.filter())
 async def start_cmd(query: CallbackQuery, state: FSMContext):
-    await state.set_state(DepartChoice.dep_id)
     _, dep_id, dep_name = query.data.split(':')
     await state.update_data(dep_id=dep_id)
     await state.set_state(DepartChoice.desc)

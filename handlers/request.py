@@ -22,7 +22,7 @@ from middleware.auth_middleware import UserAuthFilter
 
 
 router = Router()
-router.message.middleware(UserAuthFilter())
+#router.message.middleware(UserAuthFilter())
 
 
 @router.callback_query(DepartmentsCD.filter())
@@ -50,12 +50,12 @@ async def create_request(message: Message, state: FSMContext):
     print(await state.get_data())
     print(message.content_type)
     await message.reply(text='Request Accepted')
-    """ request_data = [
-        club[0],  # department_id
-        floor[0],  # floor_id
-        zone[0],  # zone_id
-        issue[0],  # btype_id
-        message.text.strip()  # description
+    request_data = [
+        int(data['dep_id']),  # department_id
+        -1,  # floor_id
+        -1,  # zone_id
+        -1,  # btype_id
+        #message.text.strip()  # description
     ]
 
     # Используем метод класса ITBot для создания заявки
@@ -64,7 +64,7 @@ async def create_request(message: Message, state: FSMContext):
     if success:
         await message.answer(request_sent_success())
     else:
-        await message.answer(request_error()) """
+        await message.answer(request_error())
 
 
 @router.callback_query(CancelCD.filter())
@@ -72,3 +72,9 @@ async def cancel_creating_request(query: CallbackQuery, state: FSMContext):
     await state.clear()
     await query.message.delete()
     await query.message.answer(request_cancelled())
+
+
+@router.message()
+async def handle_message(message: Message, state: FSMContext):
+    print(message.chat.id)
+    print(message.from_user.id)

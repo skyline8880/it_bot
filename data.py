@@ -4,19 +4,18 @@ from database.database import Database
 db = Database()
 
 con, cur = db.get_connection_and_cursor()
+""" cur.execute(
+    "DELETE FROM it.department WHERE id = -1"
+)
 
+con.commit() """
 data = cur.execute(
 """
 SELECT  
     id,
-    create_date,
-    department_id,
-    floor,
-    zone_id,
-    btype_id,
-    message_id,
-    telegram_id
-FROM it.request
+    name
+FROM it.department
 """)
 for line in data.fetchall():
     print(line)
+

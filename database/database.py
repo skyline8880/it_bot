@@ -83,31 +83,32 @@ class Database():
                         f"значения: {table().__getattribute__(attr)}\n{e}"
                     )
                     await con.rollback()
-            try:
-                await cur.execute(
-                    query=f"""
-                        INSERT INTO
-                            {Secrets.SCHEMA_NAME}.{table()} ({table.ID}, {table.NAME})
-                        VALUES (-1, 'в описании')
-                    """
-                )
-                print(
-                    f"Новое значение: 'в описании' "
-                    f"добавлено в: {Secrets.SCHEMA_NAME}.{table()}"
-                )
-            except UniqueViolation:
-                print(
-                    f"В {Secrets.SCHEMA_NAME}.{table()} уже было "
-                    f"добавлено: 'в описании'"
-                )
-                await con.rollback()
-            except Exception as e:
-                print(
-                    f"Ошибка, при добавлении в "
-                    f"{Secrets.SCHEMA_NAME}.{table()}"
-                    f"значения: 'в описании'"
-                )
-                await con.rollback()            
+            if table != Department:
+                try:
+                    await cur.execute(
+                        query=f"""
+                            INSERT INTO
+                                {Secrets.SCHEMA_NAME}.{table()} ({table.ID}, {table.NAME})
+                            VALUES (-1, 'в описании')
+                        """
+                    )
+                    print(
+                        f"Новое значение: 'в описании' "
+                        f"добавлено в: {Secrets.SCHEMA_NAME}.{table()}"
+                    )
+                except UniqueViolation:
+                    print(
+                        f"В {Secrets.SCHEMA_NAME}.{table()} уже было "
+                        f"добавлено: 'в описании'"
+                    )
+                    await con.rollback()
+                except Exception as e:
+                    print(
+                        f"Ошибка, при добавлении в "
+                        f"{Secrets.SCHEMA_NAME}.{table()}"
+                        f"значения: 'в описании'"
+                    )
+                    await con.rollback()            
             await con.commit()
         await con.close()
 

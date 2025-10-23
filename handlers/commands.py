@@ -67,7 +67,7 @@ async def handle_qr_url(message: Message):
         await message.answer(wrong_sample())
 
 
-@router.message(~CreatingRequest())
+@router.message(IsPrivate(), ~CreatingRequest())
 async def handle_private_message(message: Message, bot: ITBot):
     user_id = message.from_user.id
     if user_id not in qr_cache:
@@ -97,7 +97,7 @@ async def handle_private_message(message: Message, bot: ITBot):
             floor[0],  # floor_id
             zone[0],  # zone_id
             issue[0],  # btype_id
-            message.text.strip()  # description
+            #message.text.strip()  # description
         ]
 
         # Используем метод класса ITBot для создания заявки

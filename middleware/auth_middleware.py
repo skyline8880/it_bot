@@ -34,4 +34,4 @@ class UserAuthFilter(BaseMiddleware):
                     text=need_auth(
                         name=event.from_user.full_name),
                     reply_markup=get_contact_keyboard)
-            return await handler(event, data)
+        return await handler(event, data)

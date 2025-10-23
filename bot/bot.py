@@ -34,6 +34,7 @@ class ITBot(Bot):
             self,
             request_data: str,
             message: Message,
+            desc: str,
             file_id: str = None) -> tuple:
         db = Database()
         result = await db.insert_request(
@@ -43,18 +44,24 @@ class ITBot(Bot):
             btype_id=request_data[3],
             message_id=message.message_id,
             creator=message.from_user.id,
-            description=request_data[4],
+            description=desc,
             file_id=file_id
         )
         return result
 
     async def create_request(
-            self, request_data: list, message: Message) -> None:
+            self, request_data: list, message: Message) -> bool:
+        #GROUPS = {
+        #    1: Secrets.MSK_IT_GROUP,
+        #    2: Secrets.VLK_IT_GROUP,
+        #    3: Secrets.NKR_IT_GROUP,
+        #    4: Secrets.BUT_IT_GROUP,
+        #}
         GROUPS = {
-            1: Secrets.MSK_IT_GROUP,
-            2: Secrets.VLK_IT_GROUP,
-            3: Secrets.NKR_IT_GROUP,
-            4: Secrets.BUT_IT_GROUP,
+            1: -1002305344615,
+            2: -1002305344615,
+            3: -1002305344615,
+            4: -1002305344615,
         }
         to_chat_id = GROUPS[request_data[0]]
         db = Database()
@@ -63,6 +70,7 @@ class ITBot(Bot):
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
                     message=message,
+                    desc=message.caption.strip(),
                     file_id=message.audio.file_id
                 )
                 request_data = await db.select_request_by_sign(
@@ -76,6 +84,7 @@ class ITBot(Bot):
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
                     message=message,
+                    desc=message.caption.strip(),
                     file_id=message.document.file_id
                 )
                 request_data = await db.select_request_by_sign(
@@ -89,6 +98,7 @@ class ITBot(Bot):
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
                     message=message,
+                    desc=message.caption.strip(),
                     file_id=message.photo[-1].file_id
                 )
                 request_data = await db.select_request_by_sign(
@@ -102,6 +112,7 @@ class ITBot(Bot):
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
                     message=message,
+                    desc=message.caption.strip(),
                     file_id=message.video.file_id
                 )
                 request_data = await db.select_request_by_sign(
@@ -115,6 +126,7 @@ class ITBot(Bot):
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
                     message=message,
+                    desc=message.caption.strip(),
                     file_id=message.voice.file_id
                 )
                 request_data = await db.select_request_by_sign(
@@ -127,7 +139,8 @@ class ITBot(Bot):
             case ContentType.TEXT:
                 message_id, telegram_id = await self.make_insert_into_db(
                     request_data=request_data,
-                    message=message
+                    message=message,
+                    desc=message.text.strip(),
                 )
                 request_data = await db.select_request_by_sign(
                     message_id=message_id, telegram_id=telegram_id)

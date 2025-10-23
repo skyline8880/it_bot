@@ -2,7 +2,8 @@ from secrets.secrets import Secrets
 from urllib.parse import unquote
 from filters.callback_filters import DepartmentsCD, CancelCD
 from aiogram import F, Router
-from aiogram.enums import ChatType
+from bot.bot import bot
+from aiogram.enums import ChatType, ContentType
 from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message, CallbackQuery
 from cachetools import TTLCache
@@ -30,16 +31,25 @@ async def start_cmd(query: CallbackQuery, state: FSMContext):
     await state.update_data(dep_id=dep_id)
     await state.set_state(DepartChoice.desc)
     await query.message.delete()
-    await query.message.answer(
+    msg = await query.message.answer(
         text=detail_desc(dep_name=dep_name),
         reply_markup=await create_cancel_button()
     )
+    await state.update_data(msg_id=msg.message_id)
+
+
+@router.message(DepartChoice.dep_id)
+async def start_cmd(message: Message, state: FSMContext):
+    await message.delete()
 
 
 @router.message(DepartChoice.desc)
 async def start_cmd(message: Message, state: FSMContext):
+    data = await state.get_data()
+    await bot.delete_message(chat_id=message.chat.id, message_id=int(data['msg_id']))
     print(await state.get_data())
     print(message.content_type)
+    await message.reply(text='Request Accepted')
 
 
 @router.callback_query(CancelCD.filter())

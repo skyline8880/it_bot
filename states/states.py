@@ -8,5 +8,6 @@ class PhoneAccept(StatesGroup):
 
 
 class DepartChoice(StatesGroup):
+    msg_id = State()
     dep_id = State()
     desc = State()

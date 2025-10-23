@@ -28,6 +28,9 @@ class Database():
     def __init__(self) -> None:
         self.connection = DBConnection()
 
+    def get_connection_and_cursor(self):        
+        return self.connection.get_connection_and_cursor()
+
     async def split_users_data(self, message: Message) -> Tuple:
         telegram_id = message.from_user.id
         username = message.from_user.username
@@ -80,6 +83,31 @@ class Database():
                         f"значения: {table().__getattribute__(attr)}\n{e}"
                     )
                     await con.rollback()
+            try:
+                await cur.execute(
+                    query=f"""
+                        INSERT INTO
+                            {Secrets.SCHEMA_NAME}.{table()} ({table.ID}, {table.NAME})
+                        VALUES (-1, 'в описании')
+                    """
+                )
+                print(
+                    f"Новое значение: 'в описании' "
+                    f"добавлено в: {Secrets.SCHEMA_NAME}.{table()}"
+                )
+            except UniqueViolation:
+                print(
+                    f"В {Secrets.SCHEMA_NAME}.{table()} уже было "
+                    f"добавлено: 'в описании'"
+                )
+                await con.rollback()
+            except Exception as e:
+                print(
+                    f"Ошибка, при добавлении в "
+                    f"{Secrets.SCHEMA_NAME}.{table()}"
+                    f"значения: 'в описании'"
+                )
+                await con.rollback()            
             await con.commit()
         await con.close()
 

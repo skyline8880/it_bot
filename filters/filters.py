@@ -16,3 +16,12 @@ class CreatingRequest(Filter):
                 await state.get_state() == DepartChoice.desc):
             res = True
         return res
+
+
+class IsPrivate(Filter):
+    async def __call__(self, message: Union[Message, CallbackQuery]) -> bool:
+        if isinstance(message, CallbackQuery):
+            current_chat_type = message.message.chat.type
+        else:
+            current_chat_type = message.chat.type
+        return current_chat_type == ChatType.PRIVATE.value

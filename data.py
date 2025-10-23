@@ -1,6 +1,22 @@
-from typing import Union
+from database.database import Database
 
 
-class Departments:
-    def __init__(self, department_id: Union[int, str]) -> None:
-        self.department_id = int(department_id)
+db = Database()
+
+con, cur = db.get_connection_and_cursor()
+
+data = cur.execute(
+"""
+SELECT  
+    id,
+    create_date,
+    department_id,
+    floor,
+    zone_id,
+    btype_id,
+    message_id,
+    telegram_id
+FROM it.request
+""")
+for line in data.fetchall():
+    print(line)

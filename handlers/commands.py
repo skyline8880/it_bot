@@ -1,6 +1,6 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
-from filters.filters import CreatingRequest
+from filters.filters import CreatingRequest, IsPrivate
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.enums import ChatType
@@ -30,6 +30,7 @@ def validate_qr_format(qr_data: str) -> bool:
 
 @router.message(CommandStart())
 async def start_cmd(message: Message, command: CommandObject, state: FSMContext):
+    await state.clear()
     if command.args:
         qr_data = unquote(command.args)
         if validate_qr_format(qr_data):
@@ -66,7 +67,7 @@ async def handle_qr_url(message: Message):
         await message.answer(wrong_sample())
 
 
-@router.message(F.chat.type == ChatType.PRIVATE, ~CreatingRequest())
+@router.message(~CreatingRequest())
 async def handle_private_message(message: Message, bot: ITBot):
     user_id = message.from_user.id
     if user_id not in qr_cache:

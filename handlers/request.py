@@ -26,7 +26,7 @@ router.message.middleware(UserAuthFilter())
 
 
 @router.callback_query(DepartmentsCD.filter())
-async def start_cmd(query: CallbackQuery, state: FSMContext):
+async def get_request_description(query: CallbackQuery, state: FSMContext):
     _, dep_id, dep_name = query.data.split(':')
     await state.update_data(dep_id=dep_id)
     await state.set_state(DepartChoice.desc)
@@ -39,21 +39,36 @@ async def start_cmd(query: CallbackQuery, state: FSMContext):
 
 
 @router.message(DepartChoice.dep_id)
-async def start_cmd(message: Message, state: FSMContext):
+async def ignore_messages_on_depat_choice(message: Message, state: FSMContext):
     await message.delete()
 
 
 @router.message(DepartChoice.desc)
-async def start_cmd(message: Message, state: FSMContext):
+async def create_request(message: Message, state: FSMContext):
     data = await state.get_data()
     await bot.delete_message(chat_id=message.chat.id, message_id=int(data['msg_id']))
     print(await state.get_data())
     print(message.content_type)
     await message.reply(text='Request Accepted')
+    """ request_data = [
+        club[0],  # department_id
+        floor[0],  # floor_id
+        zone[0],  # zone_id
+        issue[0],  # btype_id
+        message.text.strip()  # description
+    ]
+
+    # Используем метод класса ITBot для создания заявки
+    success = await bot.create_request(request_data, message)
+
+    if success:
+        await message.answer(request_sent_success())
+    else:
+        await message.answer(request_error()) """
 
 
 @router.callback_query(CancelCD.filter())
-async def start_cmd(query: CallbackQuery, state: FSMContext):
+async def cancel_creating_request(query: CallbackQuery, state: FSMContext):
     await state.clear()
     await query.message.delete()
     await query.message.answer(request_cancelled())

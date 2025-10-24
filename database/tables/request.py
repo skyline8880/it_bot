@@ -9,6 +9,8 @@ class Request:
     CREATOR = "telegram_id"
     DESCRIPTION = "description"
     FILEID = "file_id"
+    STATUS_ID = "status_id"
+    EXECUTOR_ID = "executor_id"
 
     def __str__(self) -> str:
         return "request"

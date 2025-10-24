@@ -6,6 +6,7 @@ from database.tables.employee import Employee
 from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.zone import Zone
+from database.tables.status import Status
 
 CREATE = f"""
     CREATE SCHEMA IF NOT EXISTS {Secrets.SCHEMA_NAME};
@@ -30,13 +31,19 @@ CREATE = f"""
         {Btype.NAME} VARCHAR(250) NOT NULL UNIQUE
     );
 
+    CREATE TABLE IF NOT EXISTS {Secrets.SCHEMA_NAME}.{Status()} (
+        {Status.ID} SERIAL,
+        {Status.NAME} VARCHAR(250) NOT NULL UNIQUE
+    );
+
     CREATE TABLE IF NOT EXISTS {Secrets.SCHEMA_NAME}.{Employee()} (
         {Employee.ID} SERIAL,
         {Employee.ISADMIN} BOOLEAN DEFAULT FALSE,
         {Employee.PHONE} VARCHAR(15) NOT NULL UNIQUE,
         {Employee.TELEGRAM_ID} BIGINT NOT NULL,
         {Employee.FULLNAME} VARCHAR(350) DEFAULT NULL,
-        {Employee.USERNAME} VARCHAR(350) DEFAULT NULL
+        {Employee.USERNAME} VARCHAR(350) DEFAULT NULL,
+        {Employee.ISEXECUTOR} BOOLEAN DEFAULT FALSE
     );
 
     CREATE TABLE IF NOT EXISTS {Secrets.SCHEMA_NAME}.{Request()} (
@@ -50,6 +57,8 @@ CREATE = f"""
         {Request.CREATOR} BIGINT NOT NULL,
         {Request.DESCRIPTION} VARCHAR(2000) DEFAULT NULL,
         {Request.FILEID} VARCHAR(1000) DEFAULT NULL,
+        {Request.STATUS_ID} SMALLINT NOT NULL DEFAULT 1,
+        {Request.EXECUTOR_ID} BIGINT,
         PRIMARY KEY ({Request.MESSAGE_ID}, {Request.CREATOR})
     );
 """

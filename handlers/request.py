@@ -1,16 +1,17 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
-from filters.callback_filters import DepartmentsCD, CancelCD
+from filters.callback_filters import DepartmentsCD, CancelCD, RequestCD
+from filters.filters import IsAdmin, IsExecutor, IsDev
 from aiogram import F, Router
 from bot.bot import bot
 from aiogram.enums import ChatType, ContentType
-from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.filters import Command, CommandObject, CommandStart, or_f
 from aiogram.types import Message, CallbackQuery
 from cachetools import TTLCache
 from states.states import DepartChoice
 from aiogram.fsm.context import FSMContext
 from keyboards.depart_kbrd import create_depart_buttons
-from keyboards.cancel_kdrd import create_cancel_button
+from keyboards.cancel_kbrd import create_cancel_button
 from bot.bot import ITBot
 from database.database import Database
 from messages.messages import (invalid_qr_format, now_description_message,
@@ -49,7 +50,6 @@ async def create_request(message: Message, state: FSMContext):
     await bot.delete_message(chat_id=message.chat.id, message_id=int(data['msg_id']))
     print(await state.get_data())
     print(message.content_type)
-    await message.reply(text='Request Accepted')
     request_data = [
         int(data['dep_id']),  # department_id
         -1,  # floor_id
@@ -62,9 +62,9 @@ async def create_request(message: Message, state: FSMContext):
     success = await bot.create_request(request_data, message)
 
     if success:
-        await message.answer(request_sent_success())
+        await message.reply(request_sent_success())
     else:
-        await message.answer(request_error())
+        await message.reply(request_error())
 
 
 @router.callback_query(CancelCD.filter())
@@ -78,3 +78,20 @@ async def cancel_creating_request(query: CallbackQuery, state: FSMContext):
 async def handle_message(message: Message, state: FSMContext):
     print(message.chat.id)
     print(message.from_user.id)
+
+
+@router.callback_query(RequestCD.filter(), or_f(IsExecutor(), IsDev()))
+async def executor_request_act(query: CallbackQuery, state: FSMContext):
+    _, message_id, telegram_id, act_id = query.data.split(":")
+    ACTS = {
+        2: "В работе",
+        3: "Завершен"
+    }
+    await query.answer(ACTS[int(act_id)])
+
+    print(query.data)
+
+
+@router.callback_query(RequestCD.filter(), ~IsExecutor())
+async def non_executor_request_act(query: CallbackQuery, state: FSMContext):
+    await query.answer("У вас нет привилегии")

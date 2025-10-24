@@ -15,13 +15,17 @@ from database.queries.select import (SELECT_BTYPE_BY_SIGN,
                                      SELECT_REQUEST_BY_SIGN,
                                      SELECT_ZONE_BY_SIGN)
 from database.queries.update import (UPDATE_EMPLOYEE_PHONE,
-                                     UPDATE_EMPLOYEE_USERNAME_FULLNAME)
+                                     UPDATE_EMPLOYEE_USERNAME_FULLNAME,
+                                     UPDATE_REQUEST_STATUS_AND_EXECUTOR,
+                                     UPDATE_EMPLOYEE_IS_ADMIN,
+                                     UPDATE_EMPLOYEE_IS_EXECUTOR)
 from database.tables.btype import Btype
 from database.tables.department import Department
 from database.tables.employee import Employee
 from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.zone import Zone
+from database.tables.status import Status
 
 
 class Database():
@@ -53,7 +57,7 @@ class Database():
     async def insert_default(self) -> None:
         con = await self.connection()
         cur = con.cursor()
-        for table in [Department, Floor, Zone, Btype]:
+        for table in [Department, Floor, Zone, Btype, Status]:
             for attr in table().__dict__:
                 try:
                     await cur.execute(
@@ -83,7 +87,7 @@ class Database():
                         f"значения: {table().__getattribute__(attr)}\n{e}"
                     )
                     await con.rollback()
-            if table != Department:
+            if table in (Floor, Zone, Btype):
                 try:
                     await cur.execute(
                         query=f"""
@@ -268,3 +272,35 @@ class Database():
             await con.close()
             return False, True
         return False, False
+
+    async def update_request(
+            self,
+            status_id: Union[int, str],
+            executor_id: Union[int, str],
+            message_id: Union[int, str],
+            telegram_id: Union[int, str]):
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(
+            query=UPDATE_REQUEST_STATUS_AND_EXECUTOR,
+            params={Request().STATUS_ID: status_id,
+                    Request().EXECUTOR_ID: executor_id,
+                    Request().MESSAGE_ID: message_id,
+                    Request().CREATOR: telegram_id})
+        await con.commit()
+        await con.close()
+
+    async def update_is_admin(
+            self,
+            phone: Union[int, str],
+            is_admin: bool = True,
+            is_executor: bool = True):
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(
+            query=UPDATE_REQUEST_STATUS_AND_EXECUTOR,
+            params={Employee().ISADMIN: is_admin,
+                    Employee().ISEXECUTOR: is_executor,
+                    Employee().PHONE: phone})
+        await con.commit()
+        await con.close()

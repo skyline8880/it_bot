@@ -104,9 +104,9 @@ async def handle_private_message(message: Message, bot: ITBot):
         success = await bot.create_request(request_data, message)
 
         if success:
-            await message.answer(request_sent_success())
+            await message.reply(request_sent_success())
         else:
-            await message.answer(request_error())
+            await message.reply(request_error())
 
     except Exception as e:
         print(f"Ошибка: {e}")

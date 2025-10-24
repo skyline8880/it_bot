@@ -8,3 +8,9 @@ class DepartmentsCD(CallbackData, prefix='dep'):
 
 class CancelCD(CallbackData, prefix='act'):
     cancel: str
+
+
+class RequestCD(CallbackData, prefix='request_id'):
+    message_id: int
+    telegram_id: int
+    act_id: int

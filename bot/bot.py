@@ -9,6 +9,7 @@ from aiogram.types import BotCommand, Message
 
 from database.database import Database
 from messages.messages import request_form
+from keyboards.request_kbrd import create_request_buttons
 
 
 class ITBot(Bot):
@@ -77,8 +78,13 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_audio(
                     chat_id=to_chat_id,
-                    audio=request_data[-1],
-                    caption=request_form(data=request_data)
+                    audio=request_data[18],
+                    caption=request_form(data=request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case ContentType.DOCUMENT:
                 message_id, telegram_id = await self.make_insert_into_db(
@@ -91,8 +97,13 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_document(
                     chat_id=to_chat_id,
-                    document=request_data[-1],
-                    caption=request_form(data=request_data)
+                    document=request_data[18],
+                    caption=request_form(data=request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case ContentType.PHOTO:
                 message_id, telegram_id = await self.make_insert_into_db(
@@ -105,8 +116,13 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_photo(
                     chat_id=to_chat_id,
-                    photo=request_data[-1],
-                    caption=request_form(data=request_data)
+                    photo=request_data[18],
+                    caption=request_form(data=request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case ContentType.VIDEO:
                 message_id, telegram_id = await self.make_insert_into_db(
@@ -119,8 +135,13 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_video(
                     chat_id=to_chat_id,
-                    video=request_data[-1],
-                    caption=request_form(data=request_data)
+                    video=request_data[18],
+                    caption=request_form(data=request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case ContentType.VOICE:
                 message_id, telegram_id = await self.make_insert_into_db(
@@ -133,8 +154,13 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_voice(
                     chat_id=to_chat_id,
-                    voice=request_data[-1],
-                    caption=request_form(data=request_data)
+                    voice=request_data[18],
+                    caption=request_form(data=request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case ContentType.TEXT:
                 message_id, telegram_id = await self.make_insert_into_db(
@@ -146,7 +172,12 @@ class ITBot(Bot):
                     message_id=message_id, telegram_id=telegram_id)
                 await self.send_message(
                     chat_id=to_chat_id,
-                    text=request_form(request_data)
+                    text=request_form(request_data),
+                    reply_markup=await create_request_buttons(
+                        message_id=message_id,
+                        telegram_id=telegram_id,
+                        status_id=request_data[19]
+                    )
                 )
             case _:
                 await message.delete()

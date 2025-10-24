@@ -4,18 +4,25 @@ from database.database import Database
 db = Database()
 
 con, cur = db.get_connection_and_cursor()
-""" cur.execute(
-    "DELETE FROM it.department WHERE id = -1"
-)
-
-con.commit() """
 data = cur.execute(
 """
-SELECT  
-    id,
-    name
-FROM it.department
+ALTER TABLE it.request
+ADD status_id SMALLINT NOT NULL DEFAULT 1;
 """)
-for line in data.fetchall():
-    print(line)
+
+print(data)
+data = cur.execute(
+"""
+ALTER TABLE it.request
+ADD executor_id BIGINT;
+""")
+
+print(data)
+data = cur.execute(
+"""
+ALTER TABLE it.employee
+ADD is_executor BOOLEAN DEFAULT FALSE;
+""")
+print(data)
+con.commit()
 

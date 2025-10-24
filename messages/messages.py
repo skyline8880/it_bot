@@ -207,7 +207,14 @@ def request_form(data: tuple) -> str:
         employee_full_name,
         employee_username,
         request_description,
-        request_file_id
+        request_file_id,
+        status_id,
+        status,
+        executor_id,
+        executor_is_admin,
+        executor_phone,
+        executor_full_name,
+        executor_username
     ) = data
     req_id = f"{message_id}/{creator}"
     if employee_full_name is None:
@@ -216,8 +223,22 @@ def request_form(data: tuple) -> str:
         employee_username = "<Пользователь не обозначил>"
     if request_description is None or request_description == "":
         request_description = "<Пользователь не оставил описание>"
+    if executor_phone is None:
+        executor_phone = "<Не принято в работу>"
+    if executor_full_name is None:
+        executor_full_name = ""
+    if executor_username is None:
+        executor_username = ""
     create_date = dt.datetime.strftime(create_date, format="%d.%m.%Y в %H:%M")
+    STATUSES = {
+        1: '⬜',
+        2: '🔳',
+        3: '✅'
+    }
     return markdown.text(
+        markdown.text(
+            markdown.markdown_decoration.quote(
+                f'▪️ {status} {STATUSES[status_id]}')),
         markdown.text(
             markdown.markdown_decoration.quote(
                 '▪️ Запрос №:'),
@@ -264,4 +285,15 @@ def request_form(data: tuple) -> str:
             markdown.markdown_decoration.quote(
                 '▪️ Описание:'),
             markdown.bold(request_description)),
+        markdown.text(
+            markdown.markdown_decoration.quote(
+                '➖➖➖➖➖➖'),),
+        markdown.text(
+            markdown.markdown_decoration.quote(
+                '▪️ Специалист:'),
+            markdown.code(executor_phone)),
+        markdown.text(
+            markdown.bold(executor_full_name),
+            markdown.code(executor_username)
+            ),
         sep='\n')

@@ -1,6 +1,8 @@
 import datetime as dt
 
 from aiogram.utils import markdown
+from aiogram.utils.formatting import (Bold, as_key_value, as_list,
+                                      as_marked_section)
 
 
 def admin_menu():
@@ -54,6 +56,39 @@ def addremm_opreation_success(act_lvl1, act_lvl2, phone):
             'c номером:'),
         markdown.code(phone)),
     sep='\n')
+
+
+def stats(data):
+    """ msg_arr = []
+    for row in data:
+        depart = f"▪️ {row[0]}"
+        new = f"➖ Новые: {row[1]}"
+        inwork = f"➖ В работе: {row[2]}"
+        done = f"➖ Завершено: {row[3]}"
+        allr = f"➖ Всего: {row[4]}"
+        msg_arr.append(markdown.text(
+            markdown.markdown_decoration.quote(depart),
+            markdown.markdown_decoration.quote(new),
+            markdown.markdown_decoration.quote(inwork),
+            markdown.markdown_decoration.quote(done),
+            markdown.markdown_decoration.quote(allr),
+            sep='\n'))        
+    return markdown.text(
+        *msg_arr,
+        sep='\n') """
+    data_array = [Bold("Статистика заявок")]
+    as_marked_section
+    for row in data:
+        data_array.append(
+            as_marked_section(
+                Bold(f'▪️ {row[0]}'),
+                as_key_value("Новые", Bold(row[1])),
+                as_key_value("В работе", Bold(row[2])),
+                as_key_value("Завершенные", Bold(row[3])),
+                as_key_value("Всего", Bold(row[4])),
+                marker='      ➖'))
+    return as_list(
+        *data_array, sep='\n\n').as_markdown()
 
 
 def start_menu():

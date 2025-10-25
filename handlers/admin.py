@@ -37,6 +37,8 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
             text=start_menu(),
             reply_markup=await create_depart_buttons()
         )
+    elif int(act_id) == 4:
+        return await bot.open_stats(query=query)
     await state.set_state(AdminAct.addremlvl1)
     await state.update_data(addremlvl1=act_id)
     await state.set_state(AdminAct.addremlvl2)

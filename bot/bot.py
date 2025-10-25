@@ -8,8 +8,9 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.types import BotCommand, Message, CallbackQuery
 
 from database.database import Database
-from messages.messages import request_form, required_phone, undefined_phone, addremm_opreation_success
+from messages.messages import request_form, required_phone, undefined_phone, addremm_opreation_success, stats
 from keyboards.request_kbrd import create_request_buttons
+from keyboards.cancel_kbrd import create_cancel_button
 
 
 class ITBot(Bot):
@@ -254,5 +255,13 @@ class ITBot(Bot):
         return success, addremm_opreation_success(
             act_lvl1=addremlvl1, act_lvl2=addremlvl2, phone=phone)
 
+    async def open_stats(self, query: CallbackQuery):
+        db = Database()
+        result = await db.select_requests_stats()
+        await query.message.delete()
+        await query.message.answer(
+            text=stats(result),
+            reply_markup=await create_cancel_button())
+        
 
 bot = ITBot()

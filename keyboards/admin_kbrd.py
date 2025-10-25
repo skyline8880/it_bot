@@ -9,7 +9,8 @@ async def create_admin_buttons():
     for button_text, act_type in [
             ["Администраторы", 1],
             ["Специалисты", 2],
-            ["Создать заявку", 3]]:
+            ["Создать заявку", 3],
+            ["Статистика", 4],]:
         buttons.append(
             [
             InlineKeyboardButton(

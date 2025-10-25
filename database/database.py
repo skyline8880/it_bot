@@ -13,7 +13,8 @@ from database.queries.select import (SELECT_BTYPE_BY_SIGN,
                                      SELECT_EMPLOYEE_BY_SIGN,
                                      SELECT_FLOOR_BY_SIGN,
                                      SELECT_REQUEST_BY_SIGN,
-                                     SELECT_ZONE_BY_SIGN)
+                                     SELECT_ZONE_BY_SIGN,
+                                     SELECT_STATISTICS)
 from database.queries.update import (UPDATE_EMPLOYEE_PHONE,
                                      UPDATE_EMPLOYEE_USERNAME_FULLNAME,
                                      UPDATE_REQUEST_STATUS_AND_EXECUTOR,
@@ -188,6 +189,14 @@ class Database():
         result = await cur.fetchone()
         await con.close()
         return result
+
+    async def select_requests_stats(self) -> List[Tuple[str]]:
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(query=SELECT_STATISTICS)
+        result = await cur.fetchall()
+        await con.close()
+        return result 
 
     async def insert_employee(self, message: Message) -> Tuple:
         (

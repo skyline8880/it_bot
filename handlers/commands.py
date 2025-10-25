@@ -1,21 +1,23 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
-from filters.filters import CreatingRequest, IsPrivate
+from filters.filters import StateIsActive, IsPrivate, IsDev, IsAdmin
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.enums import ChatType
-from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.filters import Command, CommandObject, CommandStart, or_f
 from aiogram.types import Message
 from cachetools import TTLCache
 from states.states import DepartChoice
 from keyboards.depart_kbrd import create_depart_buttons
+from keyboards.admin_kbrd import create_admin_buttons
 from bot.bot import ITBot
 from database.database import Database
 from messages.messages import (invalid_qr_format, now_description_message,
                                processing_error, request_cancelled,
                                request_error, request_sent_success,
                                scan_qr_message, start_instruction,
-                               wrong_sample, start_menu, detail_desc)
+                               wrong_sample, start_menu, detail_desc,
+                               admin_menu)
 from middleware.auth_middleware import UserAuthFilter
 
 router = Router()
@@ -26,6 +28,13 @@ qr_cache = TTLCache(maxsize=1000, ttl=300)  # Хранит QR-коды 5 мин�
 def validate_qr_format(qr_data: str) -> bool:
     parts = qr_data.strip().split('-')
     return len(parts) == 4 and all(part.isdigit() for part in parts)
+
+
+@router.message(Command("admin"), or_f(IsAdmin(), IsDev()))
+async def admin_cmd(message: Message):
+    await message.answer(
+        text=admin_menu(),
+        reply_markup=await create_admin_buttons())
 
 
 @router.message(CommandStart())
@@ -67,7 +76,7 @@ async def handle_qr_url(message: Message):
         await message.answer(wrong_sample())
 
 
-@router.message(IsPrivate(), ~CreatingRequest())
+@router.message(IsPrivate(), ~StateIsActive())
 async def handle_private_message(message: Message, bot: ITBot):
     user_id = message.from_user.id
     if user_id not in qr_cache:

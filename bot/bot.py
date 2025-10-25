@@ -1,11 +1,11 @@
 from secrets.secrets import Secrets
-from typing import Any
+from typing import Any, Union
 
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums.content_type import ContentType
 from aiogram.enums.parse_mode import ParseMode
-from aiogram.types import BotCommand, Message
+from aiogram.types import BotCommand, Message, CallbackQuery
 
 from database.database import Database
 from messages.messages import request_form
@@ -183,6 +183,49 @@ class ITBot(Bot):
                 await message.delete()
                 return False
         return True
+
+
+    async def update_request(
+            self,
+            act_id: Union[int, str],
+            message_id: Union[int, str],
+            telegram_id: Union[int, str],
+            query: CallbackQuery) -> bool:
+        db = Database()
+        await db.update_request(
+            status_id=int(act_id),
+            executor_id=query.from_user.id,
+            message_id=int(message_id),
+            telegram_id=int(telegram_id)
+        )
+        print(act_id,message_id,telegram_id)
+        request_data = await db.select_request_by_sign(
+            message_id=message_id, telegram_id=telegram_id)
+        print(request_data)
+        chat_id = query.message.chat.id
+        chat_message_id = query.message.message_id
+        if query.message.content_type == ContentType.TEXT.value:
+            await self.edit_message_text(
+                text=request_form(request_data),
+                chat_id=chat_id,
+                message_id=chat_message_id,
+                reply_markup=await create_request_buttons(
+                    message_id=message_id,
+                    telegram_id=telegram_id,
+                    status_id=int(act_id),
+                )
+            )
+        else:
+            await self.edit_message_caption(
+                caption=request_form(request_data),
+                chat_id=chat_id,
+                message_id=chat_message_id,
+                reply_markup=await create_request_buttons(
+                    message_id=message_id,
+                    telegram_id=telegram_id,
+                    status_id=int(act_id),
+                )
+            )
 
 
 bot = ITBot()

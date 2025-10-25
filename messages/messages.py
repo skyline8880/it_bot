@@ -3,6 +3,32 @@ import datetime as dt
 from aiogram.utils import markdown
 
 
+def admin_menu():
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        'Панель администратора'),
+    sep='\n')
+
+
+def admin_or_executor_menu(act_lvl1):
+    position = "администратора" if int(act_lvl1) == 1 else "специалиста"
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'Добавьте или удалите {position}'),
+    sep='\n')
+
+
+def enter_phone_menu(act_lvl1, act_lvl2):
+    position = "администратора" if int(act_lvl1) == 1 else "специалиста"
+    action = "добавить" if int(act_lvl2) == 1 else "удалить"
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'Введите номер {position},'),
+    markdown.markdown_decoration.quote(
+        f'которого нужно {action}'),
+    sep='\n')
+
+
 def start_menu():
     return markdown.text(
     markdown.markdown_decoration.quote(
@@ -34,6 +60,13 @@ def invalid_qr_format() -> str:
     return markdown.text(
         markdown.markdown_decoration.quote(
             '❌ Неверный формат QR-кода'),
+        sep='\n')
+
+
+def operation_cancelled() -> str:
+    return markdown.text(
+        markdown.markdown_decoration.quote(
+            'Операция отменена'),
         sep='\n')
 
 

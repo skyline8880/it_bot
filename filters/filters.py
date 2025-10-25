@@ -10,13 +10,13 @@ from states.states import DepartChoice
 from secrets.secrets import Secrets
 
 
-class CreatingRequest(Filter):
+class StateIsActive(Filter):
     async def __call__(self, message: Message, state: FSMContext) -> bool:
-        res = False
-        if (await state.get_state() == DepartChoice.dep_id or 
-                await state.get_state() == DepartChoice.desc):
-            res = True
-        return res
+        return await state.get_state()
+
+
+
+
 
 
 class IsPrivate(Filter):

@@ -18,12 +18,12 @@ from messages.messages import (invalid_qr_format, now_description_message,
                                processing_error, request_cancelled,
                                request_error, request_sent_success,
                                scan_qr_message, start_instruction,
-                               wrong_sample, start_menu, detail_desc)
+                               wrong_sample, start_menu, detail_desc,
+                               operation_cancelled)
 from middleware.auth_middleware import UserAuthFilter
 
 
 router = Router()
-#router.message.middleware(UserAuthFilter())
 
 
 @router.callback_query(DepartmentsCD.filter())
@@ -48,19 +48,8 @@ async def ignore_messages_on_depat_choice(message: Message, state: FSMContext):
 async def create_request(message: Message, state: FSMContext):
     data = await state.get_data()
     await bot.delete_message(chat_id=message.chat.id, message_id=int(data['msg_id']))
-    print(await state.get_data())
-    print(message.content_type)
-    request_data = [
-        int(data['dep_id']),  # department_id
-        -1,  # floor_id
-        -1,  # zone_id
-        -1,  # btype_id
-        #message.text.strip()  # description
-    ]
-
-    # Используем метод класса ITBot для создания заявки
+    request_data = [int(data['dep_id']), -1, -1, -1,]
     success = await bot.create_request(request_data, message)
-
     if success:
         await message.reply(request_sent_success())
     else:
@@ -71,13 +60,7 @@ async def create_request(message: Message, state: FSMContext):
 async def cancel_creating_request(query: CallbackQuery, state: FSMContext):
     await state.clear()
     await query.message.delete()
-    await query.message.answer(request_cancelled())
-
-
-@router.message()
-async def handle_message(message: Message, state: FSMContext):
-    print(message.chat.id)
-    print(message.from_user.id)
+    await query.message.answer(operation_cancelled())
 
 
 @router.callback_query(RequestCD.filter(), or_f(IsExecutor(), IsDev()))
@@ -88,8 +71,11 @@ async def executor_request_act(query: CallbackQuery, state: FSMContext):
         3: "Завершен"
     }
     await query.answer(ACTS[int(act_id)])
-
-    print(query.data)
+    await bot.update_request(
+        act_id=act_id,
+        message_id=message_id,
+        telegram_id=telegram_id,
+        query=query)
 
 
 @router.callback_query(RequestCD.filter(), ~IsExecutor())

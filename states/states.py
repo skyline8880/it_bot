@@ -11,3 +11,11 @@ class DepartChoice(StatesGroup):
     msg_id = State()
     dep_id = State()
     desc = State()
+
+
+class AdminAct(StatesGroup):
+    addremlvl1 = State()
+    addremlvl2 = State()
+    msg_id = State()
+    phone = State()
+

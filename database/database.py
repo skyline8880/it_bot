@@ -297,10 +297,25 @@ class Database():
             is_executor: bool = True):
         con = await self.connection()
         cur = con.cursor()
-        await cur.execute(
-            query=UPDATE_REQUEST_STATUS_AND_EXECUTOR,
+        result = await cur.execute(
+            query=UPDATE_EMPLOYEE_IS_ADMIN,
             params={Employee().ISADMIN: is_admin,
                     Employee().ISEXECUTOR: is_executor,
                     Employee().PHONE: phone})
         await con.commit()
         await con.close()
+        return result
+
+    async def update_is_executor(
+            self,
+            phone: Union[int, str],
+            is_executor: bool = True):
+        con = await self.connection()
+        cur = con.cursor()
+        result = await cur.execute(
+            query=UPDATE_EMPLOYEE_IS_EXECUTOR,
+            params={Employee().ISEXECUTOR: is_executor,
+                    Employee().PHONE: phone})
+        await con.commit()
+        await con.close()
+        return result

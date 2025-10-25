@@ -29,6 +29,33 @@ def enter_phone_menu(act_lvl1, act_lvl2):
     sep='\n')
 
 
+def required_phone():
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'Введите номер телефона!'),
+    sep='\n')
+
+
+def undefined_phone():
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'Пользователь с данным номером отсутствует в базе!'),
+    sep='\n')
+
+
+def addremm_opreation_success(act_lvl1, act_lvl2, phone):
+    position = "администратор" if int(act_lvl1) == 1 else "специалист"
+    action = "Добавлен" if int(act_lvl2) == 1 else "Удален"
+    return markdown.text(
+    markdown.markdown_decoration.quote(
+        f'{action} {position}'),
+    markdown.text(
+        markdown.markdown_decoration.quote(
+            'c номером:'),
+        markdown.code(phone)),
+    sep='\n')
+
+
 def start_menu():
     return markdown.text(
     markdown.markdown_decoration.quote(

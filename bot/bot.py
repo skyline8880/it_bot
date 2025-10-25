@@ -8,7 +8,7 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.types import BotCommand, Message, CallbackQuery
 
 from database.database import Database
-from messages.messages import request_form
+from messages.messages import request_form, required_phone, undefined_phone, addremm_opreation_success
 from keyboards.request_kbrd import create_request_buttons
 
 
@@ -184,7 +184,6 @@ class ITBot(Bot):
                 return False
         return True
 
-
     async def update_request(
             self,
             act_id: Union[int, str],
@@ -198,10 +197,8 @@ class ITBot(Bot):
             message_id=int(message_id),
             telegram_id=int(telegram_id)
         )
-        print(act_id,message_id,telegram_id)
         request_data = await db.select_request_by_sign(
             message_id=message_id, telegram_id=telegram_id)
-        print(request_data)
         chat_id = query.message.chat.id
         chat_message_id = query.message.message_id
         if query.message.content_type == ContentType.TEXT.value:
@@ -226,6 +223,36 @@ class ITBot(Bot):
                     status_id=int(act_id),
                 )
             )
+
+    async def update_admin_or_executor(
+            self,
+            addremlvl1: Union[int, str],
+            addremlvl2: Union[int, str],
+            message: Message) -> bool:
+        success = False
+        if message.content_type != ContentType.TEXT.value:
+            return success, required_phone()
+        phone = message.text.strip()
+        db = Database()
+        employee = await db.select_employee_by_sign(sign=phone)
+        if not employee:
+            return success, undefined_phone()
+        success = True
+        add = True if int(addremlvl2) == 1 else False
+        if int(addremlvl1) == 1:
+            result = await db.update_is_admin(
+                phone=phone,
+                is_admin=add,
+                is_executor=add
+            ) 
+        elif int(addremlvl1) == 2:
+            result = await db.update_is_executor(
+                phone=phone,
+                is_executor=add
+            ) 
+        print(result.statusmessage)
+        return success, addremm_opreation_success(
+            act_lvl1=addremlvl1, act_lvl2=addremlvl2, phone=phone)
 
 
 bot = ITBot()

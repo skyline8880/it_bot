@@ -15,10 +15,6 @@ class StateIsActive(Filter):
         return await state.get_state()
 
 
-
-
-
-
 class IsPrivate(Filter):
     async def __call__(self, message: Union[Message, CallbackQuery]) -> bool:
         if isinstance(message, CallbackQuery):

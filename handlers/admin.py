@@ -30,6 +30,13 @@ router = Router()
 @router.callback_query(AdminCD.filter())
 async def admin_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(':')
+    if int(act_id) == 3:
+        await query.message.delete()
+        await state.set_state(DepartChoice.dep_id)
+        return await query.message.answer(
+            text=start_menu(),
+            reply_markup=await create_depart_buttons()
+        )
     await state.set_state(AdminAct.addremlvl1)
     await state.update_data(addremlvl1=act_id)
     await state.set_state(AdminAct.addremlvl2)
@@ -60,10 +67,16 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
 @router.message(AdminAct.phone)
 async def get_phone_to_act(message: Message, state: FSMContext):
     data = await state.get_data()
-    print(data)
-
+    msg_id = data["msg_id"]
+    success, msg = await bot.update_admin_or_executor(
+        addremlvl1=data["addremlvl1"],
+        addremlvl2=data["addremlvl2"],
+        message=message)
+    if not success:
+        return await message.reply(text=msg)
+    await bot.delete_message(chat_id=message.chat.id, message_id=int(msg_id))
+    await message.reply(text=msg)
 
 @router.message()
 async def handle_message(message: Message, state: FSMContext):
     await message.delete()
-    print(message.from_user.id)

@@ -31,7 +31,8 @@ def validate_qr_format(qr_data: str) -> bool:
 
 
 @router.message(Command("admin"), or_f(IsAdmin(), IsDev()))
-async def admin_cmd(message: Message):
+async def admin_cmd(message: Message, state: FSMContext):
+    await state.clear()
     await message.answer(
         text=admin_menu(),
         reply_markup=await create_admin_buttons())
@@ -58,7 +59,8 @@ async def start_cmd(message: Message, command: CommandObject, state: FSMContext)
 
 
 @router.message(Command("cancel"))
-async def cancel_cmd(message: Message):
+async def cancel_cmd(message: Message, state: FSMContext):
+    await state.clear()
     qr_cache.pop(message.from_user.id, None)
     await message.answer(request_cancelled())
 

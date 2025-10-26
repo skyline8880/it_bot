@@ -1,7 +1,13 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from filters.callback_filters import DepartmentsCD, CancelCD, RequestCD, AdminCD, AddRemoveAct
-from database.database import Database
-from keyboards.cancel_kbrd import cancel_button
+
+from filters.callback_filters import AddRemoveAct, AdminCD, AdminMenu
+
+to_menu_button = [
+    InlineKeyboardButton(
+                text="Меню",
+                callback_data=AdminMenu(
+                    act_type=1).pack())
+]
 
 
 async def create_admin_buttons():
@@ -10,17 +16,17 @@ async def create_admin_buttons():
             ["Администраторы", 1],
             ["Специалисты", 2],
             ["Создать заявку", 3],
-            ["Статистика", 4],]:
+            ["Статистика", 4]]:
         buttons.append(
             [
-            InlineKeyboardButton(
-                text=button_text,
-                callback_data=AdminCD(
-                    act_type=act_type).pack())
+                InlineKeyboardButton(
+                    text=button_text,
+                    callback_data=AdminCD(
+                        act_type=act_type).pack())
             ]
         )
     return InlineKeyboardMarkup(
-        row_width=1, 
+        row_width=1,
         inline_keyboard=buttons)
 
 
@@ -34,8 +40,16 @@ async def create_addremove_buttons():
                     act_type=act_type).pack())
         )
     return InlineKeyboardMarkup(
-        row_width=2, 
+        row_width=2,
         inline_keyboard=[
             buttons,
-            cancel_button
+            to_menu_button
+        ])
+
+
+async def create_to_menu_button():
+    return InlineKeyboardMarkup(
+        row_width=2,
+        inline_keyboard=[
+            to_menu_button
         ])

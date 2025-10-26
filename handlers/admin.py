@@ -1,28 +1,15 @@
-from secrets.secrets import Secrets
-from urllib.parse import unquote
-from filters.callback_filters import DepartmentsCD, CancelCD, RequestCD, AdminCD, AddRemoveAct
-from filters.filters import IsAdmin, IsExecutor, IsDev
-from aiogram import F, Router
-from bot.bot import bot
-from aiogram.enums import ChatType, ContentType
-from aiogram.filters import Command, CommandObject, CommandStart, or_f
-from aiogram.types import Message, CallbackQuery
-from cachetools import TTLCache
-from states.states import DepartChoice, AdminAct
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from keyboards.depart_kbrd import create_depart_buttons
-from keyboards.cancel_kbrd import create_cancel_button
-from keyboards.admin_kbrd import create_addremove_buttons
-from bot.bot import ITBot
-from database.database import Database
-from messages.messages import (invalid_qr_format, now_description_message,
-                               processing_error, request_cancelled,
-                               request_error, request_sent_success,
-                               scan_qr_message, start_instruction,
-                               wrong_sample, start_menu, detail_desc,
-                               admin_or_executor_menu, enter_phone_menu)
-from middleware.auth_middleware import UserAuthFilter
+from aiogram.types import CallbackQuery, Message
 
+from bot.bot import bot
+from filters.callback_filters import AddRemoveAct, AdminCD, AdminMenu
+from keyboards.admin_kbrd import create_addremove_buttons, create_admin_buttons
+from keyboards.cancel_kbrd import create_cancel_button
+from keyboards.depart_kbrd import create_depart_buttons
+from messages.messages import (admin_menu, admin_or_executor_menu,
+                               enter_phone_menu, start_menu)
+from states.states import AdminAct, DepartChoice
 
 router = Router()
 
@@ -35,7 +22,7 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
         await state.set_state(DepartChoice.dep_id)
         return await query.message.answer(
             text=start_menu(),
-            reply_markup=await create_depart_buttons()
+            reply_markup=await create_depart_buttons(is_admin=True)
         )
     elif int(act_id) == 4:
         return await bot.open_stats(query=query)
@@ -50,7 +37,7 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(AddRemoveAct.filter())
-async def admin_act(query: CallbackQuery, state: FSMContext):
+async def admin_addrem_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(':')
     await state.set_state(AdminAct.addremlvl2)
     await state.update_data(addremlvl2=act_id)
@@ -66,6 +53,15 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
     await state.set_state(AdminAct.phone)
 
 
+@router.callback_query(AdminMenu.filter())
+async def to_admin_menu_act(query: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await query.message.delete()
+    await query.message.answer(
+        text=admin_menu(),
+        reply_markup=await create_admin_buttons())
+
+
 @router.message(AdminAct.phone)
 async def get_phone_to_act(message: Message, state: FSMContext):
     data = await state.get_data()
@@ -78,6 +74,7 @@ async def get_phone_to_act(message: Message, state: FSMContext):
         return await message.reply(text=msg)
     await bot.delete_message(chat_id=message.chat.id, message_id=int(msg_id))
     await message.reply(text=msg)
+
 
 @router.message()
 async def handle_message(message: Message, state: FSMContext):

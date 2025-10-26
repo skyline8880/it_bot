@@ -1,13 +1,12 @@
+from secrets.secrets import Secrets
 from typing import Union
 
 from aiogram.enums.chat_type import ChatType
-from aiogram.enums.content_type import ContentType
 from aiogram.filters import Filter
-from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message
+
 from database.database import Database
-from states.states import DepartChoice
-from secrets.secrets import Secrets
 
 
 class StateIsActive(Filter):

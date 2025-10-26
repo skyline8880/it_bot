@@ -1,24 +1,24 @@
 from secrets.secrets import Secrets
 from urllib.parse import unquote
-from filters.filters import StateIsActive, IsPrivate, IsDev, IsAdmin
-from aiogram.fsm.context import FSMContext
+
 from aiogram import F, Router
-from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject, CommandStart, or_f
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from cachetools import TTLCache
-from states.states import DepartChoice
-from keyboards.depart_kbrd import create_depart_buttons
-from keyboards.admin_kbrd import create_admin_buttons
+
 from bot.bot import ITBot
 from database.database import Database
-from messages.messages import (invalid_qr_format, now_description_message,
-                               processing_error, request_cancelled,
-                               request_error, request_sent_success,
-                               scan_qr_message, start_instruction,
-                               wrong_sample, start_menu, detail_desc,
-                               admin_menu)
+from filters.filters import IsAdmin, IsDev, IsPrivate, StateIsActive
+from keyboards.admin_kbrd import create_admin_buttons
+from keyboards.depart_kbrd import create_depart_buttons
+from messages.messages import (admin_menu, invalid_qr_format,
+                               now_description_message, processing_error,
+                               request_cancelled, request_error,
+                               request_sent_success, scan_qr_message,
+                               start_menu, wrong_sample)
 from middleware.auth_middleware import UserAuthFilter
+from states.states import DepartChoice
 
 router = Router()
 router.message.middleware(UserAuthFilter())
@@ -39,7 +39,8 @@ async def admin_cmd(message: Message, state: FSMContext):
 
 
 @router.message(CommandStart())
-async def start_cmd(message: Message, command: CommandObject, state: FSMContext):
+async def start_cmd(
+        message: Message, command: CommandObject, state: FSMContext):
     await state.clear()
     if command.args:
         qr_data = unquote(command.args)
@@ -55,7 +56,6 @@ async def start_cmd(message: Message, command: CommandObject, state: FSMContext)
             text=start_menu(),
             reply_markup=await create_depart_buttons()
         )
-        #print("start menu")
 
 
 @router.message(Command("cancel"))
@@ -108,7 +108,6 @@ async def handle_private_message(message: Message, bot: ITBot):
             floor[0],  # floor_id
             zone[0],  # zone_id
             issue[0],  # btype_id
-            #message.text.strip()  # description
         ]
 
         # Используем метод класса ITBot для создания заявки

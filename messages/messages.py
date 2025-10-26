@@ -7,77 +7,59 @@ from aiogram.utils.formatting import (Bold, as_key_value, as_list,
 
 def admin_menu():
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        'Панель администратора'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            'Панель администратора'),
+        sep='\n')
 
 
 def admin_or_executor_menu(act_lvl1):
     position = "администратора" if int(act_lvl1) == 1 else "специалиста"
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'Добавьте или удалите {position}'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            f'Добавьте или удалите {position}'),
+        sep='\n')
 
 
 def enter_phone_menu(act_lvl1, act_lvl2):
     position = "администратора" if int(act_lvl1) == 1 else "специалиста"
     action = "добавить" if int(act_lvl2) == 1 else "удалить"
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'Введите номер {position},'),
-    markdown.markdown_decoration.quote(
-        f'которого нужно {action}'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            f'Введите номер {position},'),
+        markdown.markdown_decoration.quote(
+            f'которого нужно {action}'),
+        sep='\n')
 
 
 def required_phone():
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'Введите номер телефона!'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            'Введите номер телефона!'),
+        sep='\n')
 
 
 def undefined_phone():
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'Пользователь с данным номером отсутствует в базе!'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            'Пользователь с данным номером отсутствует в базе!'),
+        sep='\n')
 
 
 def addremm_opreation_success(act_lvl1, act_lvl2, phone):
     position = "администратор" if int(act_lvl1) == 1 else "специалист"
     action = "Добавлен" if int(act_lvl2) == 1 else "Удален"
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'{action} {position}'),
-    markdown.text(
         markdown.markdown_decoration.quote(
-            'c номером:'),
-        markdown.code(phone)),
-    sep='\n')
+            f'{action} {position}'),
+        markdown.text(
+            markdown.markdown_decoration.quote(
+                'c номером:'),
+            markdown.code(phone)),
+        sep='\n')
 
 
 def stats(data):
-    """ msg_arr = []
-    for row in data:
-        depart = f"▪️ {row[0]}"
-        new = f"➖ Новые: {row[1]}"
-        inwork = f"➖ В работе: {row[2]}"
-        done = f"➖ Завершено: {row[3]}"
-        allr = f"➖ Всего: {row[4]}"
-        msg_arr.append(markdown.text(
-            markdown.markdown_decoration.quote(depart),
-            markdown.markdown_decoration.quote(new),
-            markdown.markdown_decoration.quote(inwork),
-            markdown.markdown_decoration.quote(done),
-            markdown.markdown_decoration.quote(allr),
-            sep='\n'))        
-    return markdown.text(
-        *msg_arr,
-        sep='\n') """
     data_array = [Bold("Статистика заявок")]
-    as_marked_section
     for row in data:
         data_array.append(
             as_marked_section(
@@ -93,22 +75,22 @@ def stats(data):
 
 def start_menu():
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        'Выберите клуб, в котором'),
-    markdown.markdown_decoration.quote(
-        'хотите создать заявку:'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            'Выберите клуб, в котором'),
+        markdown.markdown_decoration.quote(
+            'хотите создать заявку:'),
+        sep='\n')
 
 
 def detail_desc(dep_name: str):
     return markdown.text(
-    markdown.markdown_decoration.quote(
-        f'Выбран: {dep_name}.'),
-    markdown.markdown_decoration.quote(
-        'Подробно опишите проблему и'),
-    markdown.markdown_decoration.quote(
-        'и укажите где зафиксировали.'),
-    sep='\n')
+        markdown.markdown_decoration.quote(
+            f'Выбран: {dep_name}.'),
+        markdown.markdown_decoration.quote(
+            'Подробно опишите проблему и'),
+        markdown.markdown_decoration.quote(
+            'и укажите где зафиксировали.'),
+        sep='\n')
 
 
 def now_description_message() -> str:

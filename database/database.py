@@ -1,5 +1,5 @@
 from secrets.secrets import Secrets
-from typing import Tuple, Union, List
+from typing import List, Tuple, Union
 
 from aiogram.types import Message
 from psycopg.errors import UniqueViolation
@@ -8,32 +8,31 @@ from database.connection.connection import DBConnection
 from database.queries.create import CREATE
 from database.queries.insert import INSERT_INTO_EMPLOYEE, INSERT_INTO_REQUEST
 from database.queries.select import (SELECT_BTYPE_BY_SIGN,
-                                     SELECT_DEPARTMENTS,
                                      SELECT_DEPARTMENT_BY_SIGN,
+                                     SELECT_DEPARTMENTS,
                                      SELECT_EMPLOYEE_BY_SIGN,
                                      SELECT_FLOOR_BY_SIGN,
-                                     SELECT_REQUEST_BY_SIGN,
-                                     SELECT_ZONE_BY_SIGN,
-                                     SELECT_STATISTICS)
-from database.queries.update import (UPDATE_EMPLOYEE_PHONE,
+                                     SELECT_REQUEST_BY_SIGN, SELECT_STATISTICS,
+                                     SELECT_ZONE_BY_SIGN)
+from database.queries.update import (UPDATE_EMPLOYEE_IS_ADMIN,
+                                     UPDATE_EMPLOYEE_IS_EXECUTOR,
+                                     UPDATE_EMPLOYEE_PHONE,
                                      UPDATE_EMPLOYEE_USERNAME_FULLNAME,
-                                     UPDATE_REQUEST_STATUS_AND_EXECUTOR,
-                                     UPDATE_EMPLOYEE_IS_ADMIN,
-                                     UPDATE_EMPLOYEE_IS_EXECUTOR)
+                                     UPDATE_REQUEST_STATUS_AND_EXECUTOR)
 from database.tables.btype import Btype
 from database.tables.department import Department
 from database.tables.employee import Employee
 from database.tables.floor import Floor
 from database.tables.request import Request
-from database.tables.zone import Zone
 from database.tables.status import Status
+from database.tables.zone import Zone
 
 
 class Database():
     def __init__(self) -> None:
         self.connection = DBConnection()
 
-    def get_connection_and_cursor(self):        
+    def get_connection_and_cursor(self):
         return self.connection.get_connection_and_cursor()
 
     async def split_users_data(self, message: Message) -> Tuple:
@@ -93,7 +92,8 @@ class Database():
                     await cur.execute(
                         query=f"""
                             INSERT INTO
-                                {Secrets.SCHEMA_NAME}.{table()} ({table.ID}, {table.NAME})
+                                {Secrets.SCHEMA_NAME}.{table()} (
+                                    {table.ID}, {table.NAME})
                             VALUES (-1, 'в описании')
                         """
                     )
@@ -111,9 +111,9 @@ class Database():
                     print(
                         f"Ошибка, при добавлении в "
                         f"{Secrets.SCHEMA_NAME}.{table()}"
-                        f"значения: 'в описании'"
+                        f"значения: 'в описании' {e}"
                     )
-                    await con.rollback()            
+                    await con.rollback()
             await con.commit()
         await con.close()
 
@@ -196,7 +196,7 @@ class Database():
         await cur.execute(query=SELECT_STATISTICS)
         result = await cur.fetchall()
         await con.close()
-        return result 
+        return result
 
     async def insert_employee(self, message: Message) -> Tuple:
         (

@@ -5,9 +5,8 @@ from database.tables.department import Department
 from database.tables.employee import Employee
 from database.tables.floor import Floor
 from database.tables.request import Request
-from database.tables.zone import Zone
 from database.tables.status import Status
-
+from database.tables.zone import Zone
 
 SELECT_DEPARTMENTS = f"""
     SELECT
@@ -104,7 +103,7 @@ SELECT_REQUEST_BY_SIGN = f"""
         eemp.{Employee().ISADMIN},
         eemp.{Employee().PHONE},
         eemp.{Employee().FULLNAME},
-        eemp.{Employee().USERNAME}       
+        eemp.{Employee().USERNAME}
     FROM current_request AS crt
     LEFT JOIN {Secrets.SCHEMA_NAME}.{Department()} AS dp
         ON crt.{Request().DEPARTMENT_ID} = dp.{Department().ID}

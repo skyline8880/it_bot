@@ -22,3 +22,7 @@ class AdminCD(CallbackData, prefix='menu_act'):
 
 class AddRemoveAct(CallbackData, prefix='addrem_act'):
     act_type: int
+
+
+class AdminMenu(CallbackData, prefix='adm_act'):
+    act_type: int

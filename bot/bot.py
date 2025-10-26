@@ -5,12 +5,13 @@ from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums.content_type import ContentType
 from aiogram.enums.parse_mode import ParseMode
-from aiogram.types import BotCommand, Message, CallbackQuery
+from aiogram.types import BotCommand, CallbackQuery, Message
 
 from database.database import Database
-from messages.messages import request_form, required_phone, undefined_phone, addremm_opreation_success, stats
+from keyboards.admin_kbrd import create_to_menu_button
 from keyboards.request_kbrd import create_request_buttons
-from keyboards.cancel_kbrd import create_cancel_button
+from messages.messages import (addremm_opreation_success, request_form,
+                               required_phone, stats, undefined_phone)
 
 
 class ITBot(Bot):
@@ -53,18 +54,18 @@ class ITBot(Bot):
 
     async def create_request(
             self, request_data: list, message: Message) -> bool:
-        #GROUPS = {
-        #    1: Secrets.MSK_IT_GROUP,
-        #    2: Secrets.VLK_IT_GROUP,
-        #    3: Secrets.NKR_IT_GROUP,
-        #    4: Secrets.BUT_IT_GROUP,
-        #}
         GROUPS = {
-            1: -1002305344615,
-            2: -1002305344615,
-            3: -1002305344615,
-            4: -1002305344615,
+            1: Secrets.MSK_IT_GROUP,
+            2: Secrets.VLK_IT_GROUP,
+            3: Secrets.NKR_IT_GROUP,
+            4: Secrets.BUT_IT_GROUP,
         }
+        # GROUPS = {
+        #     1: -1002305344615,
+        #     2: -1002305344615,
+        #     3: -1002305344615,
+        #     4: -1002305344615,
+        # }
         to_chat_id = GROUPS[request_data[0]]
         db = Database()
         match message.content_type:
@@ -245,12 +246,12 @@ class ITBot(Bot):
                 phone=phone,
                 is_admin=add,
                 is_executor=add
-            ) 
+            )
         elif int(addremlvl1) == 2:
             result = await db.update_is_executor(
                 phone=phone,
                 is_executor=add
-            ) 
+            )
         print(result.statusmessage)
         return success, addremm_opreation_success(
             act_lvl1=addremlvl1, act_lvl2=addremlvl2, phone=phone)
@@ -261,7 +262,7 @@ class ITBot(Bot):
         await query.message.delete()
         await query.message.answer(
             text=stats(result),
-            reply_markup=await create_cancel_button())
-        
+            reply_markup=await create_to_menu_button())
+
 
 bot = ITBot()

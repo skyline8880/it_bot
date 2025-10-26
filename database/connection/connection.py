@@ -14,8 +14,9 @@ class DBConnection():
             port=Secrets.PGPORT
         )
         return self.connect
-    
-    def get_connection_and_cursor(self) -> Tuple[psycopg.Connection, psycopg.Cursor]:
+
+    def get_connection_and_cursor(
+            self) -> Tuple[psycopg.Connection, psycopg.Cursor]:
         self.connect = psycopg.Connection.connect(
             host=Secrets.PGHOST,
             dbname=Secrets.PGDATABASE,

@@ -1,27 +1,15 @@
-from secrets.secrets import Secrets
-from urllib.parse import unquote
-from filters.callback_filters import DepartmentsCD, CancelCD, RequestCD
-from filters.filters import IsAdmin, IsExecutor, IsDev
-from aiogram import F, Router
-from bot.bot import bot
-from aiogram.enums import ChatType, ContentType
-from aiogram.filters import Command, CommandObject, CommandStart, or_f
-from aiogram.types import Message, CallbackQuery
-from cachetools import TTLCache
-from states.states import DepartChoice
+from aiogram import Router
+from aiogram.filters import or_f
 from aiogram.fsm.context import FSMContext
-from keyboards.depart_kbrd import create_depart_buttons
-from keyboards.cancel_kbrd import create_cancel_button
-from bot.bot import ITBot
-from database.database import Database
-from messages.messages import (invalid_qr_format, now_description_message,
-                               processing_error, request_cancelled,
-                               request_error, request_sent_success,
-                               scan_qr_message, start_instruction,
-                               wrong_sample, start_menu, detail_desc,
-                               operation_cancelled)
-from middleware.auth_middleware import UserAuthFilter
+from aiogram.types import CallbackQuery, Message
 
+from bot.bot import bot
+from filters.callback_filters import CancelCD, DepartmentsCD, RequestCD
+from filters.filters import IsDev, IsExecutor
+from keyboards.cancel_kbrd import create_cancel_button
+from messages.messages import (detail_desc, operation_cancelled, request_error,
+                               request_sent_success)
+from states.states import DepartChoice
 
 router = Router()
 
@@ -47,7 +35,8 @@ async def ignore_messages_on_depat_choice(message: Message, state: FSMContext):
 @router.message(DepartChoice.desc)
 async def create_request(message: Message, state: FSMContext):
     data = await state.get_data()
-    await bot.delete_message(chat_id=message.chat.id, message_id=int(data['msg_id']))
+    await bot.delete_message(
+        chat_id=message.chat.id, message_id=int(data['msg_id']))
     request_data = [int(data['dep_id']), -1, -1, -1,]
     success = await bot.create_request(request_data, message)
     if success:

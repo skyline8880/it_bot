@@ -1,8 +1,11 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from filters.callback_filters import DepartmentsCD
-from database.database import Database
 
-async def create_depart_buttons():
+from database.database import Database
+from filters.callback_filters import DepartmentsCD
+from keyboards.admin_kbrd import to_menu_button
+
+
+async def create_depart_buttons(is_admin: bool = False):
     db = Database()
     departs = await db.select_departments()
     depart_name_buttons = []
@@ -14,5 +17,7 @@ async def create_depart_buttons():
                     depart=dep_id,
                     name=dep_name).pack())
         ])
+    if is_admin:
+        depart_name_buttons.append(to_menu_button)
     return InlineKeyboardMarkup(
         row_width=1, inline_keyboard=depart_name_buttons)

@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery, Message
 
 from bot.bot import bot
 from filters.callback_filters import AddRemoveAct, AdminCD, AdminMenu
+from filters.filters import IsPrivate
 from keyboards.admin_kbrd import create_addremove_buttons, create_admin_buttons
 from keyboards.cancel_kbrd import create_cancel_button
 from keyboards.depart_kbrd import create_depart_buttons
@@ -76,6 +77,6 @@ async def get_phone_to_act(message: Message, state: FSMContext):
     await message.reply(text=msg)
 
 
-@router.message()
+@router.message(IsPrivate())
 async def handle_message(message: Message, state: FSMContext):
     await message.delete()

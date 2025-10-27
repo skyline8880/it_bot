@@ -66,7 +66,8 @@ async def cancel_cmd(message: Message, state: FSMContext):
 
 
 @router.message(F.text.contains(f'{Secrets.BOT_LINK}?text='))
-async def handle_qr_url(message: Message):
+async def handle_qr_url(message: Message, state: FSMContext):
+    await state.clear()
     try:
         qr_data = unquote(message.text.split('text=')[1].split('%0A')[0])
         if validate_qr_format(qr_data):

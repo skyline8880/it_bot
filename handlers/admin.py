@@ -39,7 +39,7 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
     elif int(act_id) == 5:
         await state.set_state(AdminAct.addremlvl2)
         return await query.message.answer(
-            text="choose service",
+            text="Выберите службу",
             reply_markup=await create_system_services_button()
         )
     await state.set_state(AdminAct.addremlvl2)

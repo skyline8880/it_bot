@@ -43,7 +43,6 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
             reply_markup=await create_system_services_button()
         )
     await state.set_state(AdminAct.addremlvl2)
-    await query.message.delete()
     await query.message.answer(
         text=admin_or_executor_menu(act_id),
         reply_markup=await create_addremove_buttons()
@@ -95,7 +94,7 @@ async def back_act(query: CallbackQuery, state: FSMContext):
     await query.message.delete()
     if not await state.get_state():
         query.answer("Меню")
-        return await query.answermessage.answer(
+        return await query.message.answer(
                 text=admin_menu(),
                 reply_markup=await create_admin_buttons())
     await query.answer("Назад")

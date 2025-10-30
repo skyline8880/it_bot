@@ -35,7 +35,7 @@ con, cur = db.get_connection_and_cursor()
 #con.commit()
 # (3, False, '79998185113', 228241435, 'Серëга (IBBQI)', '@IIBBQII', False)
 # (2, False, '79258999734', 5204359462, 'ADMIN TELEGRAM OHANA', '@It_ohana', False)
-for phone, telegram_id, fullname, username in [
+""" for phone, telegram_id, fullname, username in [
     [79856955202, 1229595123, 'Nikolay', '@Nikolaybboy'],
     [79776611341, 5693627941, '𝒱𝓁𝒶𝒹𝒾𝓈𝓁𝒶𝓋', '@vl_13_m'],
     [79266153646, 477613350, 'Alexander Avramenko', '@Alexander_a83'],
@@ -49,9 +49,9 @@ for phone, telegram_id, fullname, username in [
             Employee().USERNAME: username,
         }
     )
-    con.commit()
+    con.commit() """
 
-""" for phone in [79266153646]:
+for phone in [79856955202, 79776611341]:
     cur.execute(
         query=UPDATE_EMPLOYEE_IS_ADMIN,
         params={
@@ -59,15 +59,15 @@ for phone, telegram_id, fullname, username in [
             "is_admin": True,
             "is_executor": True}
     )
-con.commit() """
-for phone in [79856955202, 79776611341]:
+con.commit()
+""" for phone in [79856955202, 79776611341]:
     cur.execute(
         query=UPDATE_EMPLOYEE_IS_EXECUTOR,
         params={
             "phone": str(phone),
             "is_executor": True}
     )
-con.commit()
+con.commit() """
 res = cur.execute(
 """
 SELECT

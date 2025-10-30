@@ -259,7 +259,6 @@ class ITBot(Bot):
     async def open_stats(self, query: CallbackQuery):
         db = Database()
         result = await db.select_requests_stats()
-        await query.message.delete()
         await query.message.answer(
             text=stats(result),
             reply_markup=await create_to_menu_button())

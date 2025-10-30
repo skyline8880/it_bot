@@ -23,3 +23,6 @@ class Secrets:
     PGPASSWORD = os.getenv('PGPASSWORD')
     PGPORT = os.getenv('PGPORT')
     SCHEMA_NAME = os.getenv('SCHEMA_NAME')
+    HOST = os.getenv("HOST")
+    HOST_USERNAME = os.getenv("HOST_USERNAME")
+    HOST_PASSWORD = os.getenv("HOST_PASSWORD")

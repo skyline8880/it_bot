@@ -1,6 +1,7 @@
 from secrets.secrets import Secrets
 
-from database.database import Database, UPDATE_EMPLOYEE_IS_ADMIN, INSERT_INTO_EMPLOYEE, UPDATE_EMPLOYEE_IS_EXECUTOR
+from database.database import (INSERT_INTO_EMPLOYEE, UPDATE_EMPLOYEE_IS_ADMIN,
+                               UPDATE_EMPLOYEE_IS_EXECUTOR, Database)
 from database.tables.department import Department
 from database.tables.employee import Employee
 from database.tables.floor import Floor

@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 
 from bot.bot import bot
 from filters.callback_filters import CancelCD, DepartmentsCD, RequestCD
-from filters.filters import IsDev, IsExecutor
+from filters.filters import IsDev, IsExecutor, IsPrivate
 from keyboards.cancel_kbrd import create_cancel_button
 from messages.messages import (detail_desc, operation_cancelled, request_error,
                                request_sent_success)
@@ -14,7 +14,7 @@ from states.states import DepartChoice
 router = Router()
 
 
-@router.callback_query(DepartmentsCD.filter())
+@router.callback_query(DepartmentsCD.filter(), IsPrivate())
 async def get_request_description(query: CallbackQuery, state: FSMContext):
     _, dep_id, dep_name = query.data.split(':')
     await state.update_data(dep_id=dep_id)
@@ -27,12 +27,12 @@ async def get_request_description(query: CallbackQuery, state: FSMContext):
     await state.update_data(msg_id=msg.message_id)
 
 
-@router.message(DepartChoice.dep_id)
+@router.message(DepartChoice.dep_id, IsPrivate())
 async def ignore_messages_on_depat_choice(message: Message, state: FSMContext):
     await message.delete()
 
 
-@router.message(DepartChoice.desc)
+@router.message(DepartChoice.desc, IsPrivate())
 async def create_request(message: Message, state: FSMContext):
     data = await state.get_data()
     await bot.delete_message(
@@ -45,14 +45,15 @@ async def create_request(message: Message, state: FSMContext):
         await message.reply(request_error())
 
 
-@router.callback_query(CancelCD.filter())
+@router.callback_query(CancelCD.filter(), IsPrivate())
 async def cancel_creating_request(query: CallbackQuery, state: FSMContext):
     await state.clear()
     await query.message.delete()
     await query.message.answer(operation_cancelled())
 
 
-@router.callback_query(RequestCD.filter(), or_f(IsExecutor(), IsDev()))
+@router.callback_query(
+    RequestCD.filter(), or_f(IsExecutor(), IsDev()))
 async def executor_request_act(query: CallbackQuery, state: FSMContext):
     _, message_id, telegram_id, act_id = query.data.split(":")
     ACTS = {

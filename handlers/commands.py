@@ -30,7 +30,7 @@ def validate_qr_format(qr_data: str) -> bool:
     return len(parts) == 4 and all(part.isdigit() for part in parts)
 
 
-@router.message(Command("admin"), or_f(IsAdmin(), IsDev()))
+@router.message(Command("admin"), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def admin_cmd(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
@@ -38,7 +38,7 @@ async def admin_cmd(message: Message, state: FSMContext):
         reply_markup=await create_admin_buttons())
 
 
-@router.message(CommandStart())
+@router.message(CommandStart(), IsPrivate())
 async def start_cmd(
         message: Message, command: CommandObject, state: FSMContext):
     await state.clear()
@@ -58,7 +58,7 @@ async def start_cmd(
         )
 
 
-@router.message(Command("cancel"))
+@router.message(Command("cancel"), IsPrivate())
 async def cancel_cmd(message: Message, state: FSMContext):
     await state.clear()
     qr_cache.pop(message.from_user.id, None)

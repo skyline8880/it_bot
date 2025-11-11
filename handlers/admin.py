@@ -8,7 +8,7 @@ from craft.host import RemoteServer
 from filters.callback_filters import (AddRemoveAct, AdminCD, AdminMenu,
                                       BackMenu, ServiceActionMenu,
                                       SystemServiceMenu)
-from filters.filters import IsPrivate, IsAdmin
+from filters.filters import IsAdmin, IsPrivate
 from keyboards.admin_kbrd import (create_addremove_buttons,
                                   create_admin_buttons,
                                   create_service_actions_button,

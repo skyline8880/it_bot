@@ -1,4 +1,5 @@
 from aiogram import Router
+from aiogram.filters import or_f
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -8,7 +9,7 @@ from craft.host import RemoteServer
 from filters.callback_filters import (AddRemoveAct, AdminCD, AdminMenu,
                                       BackMenu, ServiceActionMenu,
                                       SystemServiceMenu)
-from filters.filters import IsAdmin, IsPrivate
+from filters.filters import IsAdmin, IsDev, IsPrivate
 from keyboards.admin_kbrd import (create_addremove_buttons,
                                   create_admin_buttons,
                                   create_service_actions_button,
@@ -22,7 +23,8 @@ from states.states import AdminAct, DepartChoice
 router = Router()
 
 
-@router.callback_query(AdminCD.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    AdminCD.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def admin_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(':')
     await state.set_state(AdminAct.addremlvl1)
@@ -49,7 +51,8 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(AddRemoveAct.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    AddRemoveAct.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def admin_addrem_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(':')
     await state.set_state(AdminAct.addremlvl2)
@@ -66,7 +69,8 @@ async def admin_addrem_act(query: CallbackQuery, state: FSMContext):
     await state.set_state(AdminAct.phone)
 
 
-@router.callback_query(AdminMenu.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    AdminMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def to_admin_menu_act(query: CallbackQuery, state: FSMContext):
     await state.clear()
     await query.message.delete()
@@ -75,7 +79,8 @@ async def to_admin_menu_act(query: CallbackQuery, state: FSMContext):
         reply_markup=await create_admin_buttons())
 
 
-@router.message(AdminAct.phone, IsAdmin(), IsPrivate())
+@router.message(
+    AdminAct.phone, or_f(IsAdmin(), IsDev()), IsPrivate())
 async def get_phone_to_act(message: Message, state: FSMContext):
     data = await state.get_data()
     msg_id = data["msg_id"]
@@ -89,7 +94,8 @@ async def get_phone_to_act(message: Message, state: FSMContext):
     await message.reply(text=msg)
 
 
-@router.callback_query(BackMenu.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    BackMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def back_act(query: CallbackQuery, state: FSMContext):
     await query.message.delete()
     if not await state.get_state():
@@ -106,7 +112,8 @@ async def back_act(query: CallbackQuery, state: FSMContext):
             reply_markup=await create_system_services_button())
 
 
-@router.callback_query(SystemServiceMenu.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    SystemServiceMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def choose_service_act(query: CallbackQuery, state: FSMContext):
     _, sys_id = query.data.split(":")
     if int(sys_id) > 4 or int(sys_id) < 2:
@@ -120,7 +127,8 @@ async def choose_service_act(query: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(ServiceActionMenu.filter(), IsAdmin(), IsPrivate())
+@router.callback_query(
+    ServiceActionMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def service_act(query: CallbackQuery, state: FSMContext):
     await query.answer("Выполняю")
     _, act_id = query.data.split(":")

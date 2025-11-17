@@ -31,7 +31,11 @@ class ITBot(Bot):
     async def command_init(self) -> None:
         await self.set_my_commands(
             commands=[
-                BotCommand(command='start', description='Запустить бота')])
+                BotCommand(
+                    command='start', description='Запустить бота'),
+                BotCommand(
+                    command='admin', description='Панель администратора')
+                ])
 
     async def make_insert_into_db(
             self,

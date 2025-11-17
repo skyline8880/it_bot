@@ -12,6 +12,7 @@ if sys.platform == 'win32':
 async def main():
     db = Database()
     await db.create()
+    await bot.command_init()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

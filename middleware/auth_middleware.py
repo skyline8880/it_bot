@@ -16,6 +16,12 @@ class UserAuthFilter(BaseMiddleware):
         event: Message,
         data: Dict[str, Any]
     ) -> Any:
+        # msg = f"""
+        # event.chat.type = {event.chat.type}
+        # event.text = {event.text}
+        # event.from_user.username = {event.from_user.username}
+        # """
+        # print(msg)
         if event.chat.type == ChatType.PRIVATE.value:
             db = Database()
             result = await db.select_employee_by_sign(

@@ -1,5 +1,6 @@
+import datetime as dt
 from secrets.secrets import Secrets
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from aiogram.types import Message
 from psycopg.errors import UniqueViolation
@@ -7,10 +8,11 @@ from psycopg.errors import UniqueViolation
 from database.connection.connection import DBConnection
 from database.queries.create import CREATE
 from database.queries.insert import INSERT_INTO_EMPLOYEE, INSERT_INTO_REQUEST
-from database.queries.select import (SELECT_BTYPE_BY_SIGN,
+from database.queries.select import (SELECT_ADMINS, SELECT_BTYPE_BY_SIGN,
+                                     SELECT_CUSTOM_REQUESTS,
                                      SELECT_DEPARTMENT_BY_SIGN,
                                      SELECT_DEPARTMENTS,
-                                     SELECT_EMPLOYEE_BY_SIGN,
+                                     SELECT_EMPLOYEE_BY_SIGN, SELECT_EXECUTORS,
                                      SELECT_FLOOR_BY_SIGN,
                                      SELECT_REQUEST_BY_SIGN, SELECT_STATISTICS,
                                      SELECT_ZONE_BY_SIGN)
@@ -194,6 +196,57 @@ class Database():
         con = await self.connection()
         cur = con.cursor()
         await cur.execute(query=SELECT_STATISTICS)
+        result = await cur.fetchall()
+        await con.close()
+        return result
+
+    async def select_admins_or_executors(self, act: int) -> List[Tuple[str]]:
+        query = {
+            1: SELECT_ADMINS,
+            2: SELECT_EXECUTORS
+        }
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(query=query[act])
+        result = await cur.fetchall()
+        await con.close()
+        return result
+
+    # async def select_admins(self) -> List[Tuple[str]]:
+    #     con = await self.connection()
+    #     cur = con.cursor()
+    #     await cur.execute(query=SELECT_ADMINS)
+    #     result = await cur.fetchall()
+    #     await con.close()
+    #     return result
+
+    # async def select_executors(self) -> List[Tuple[str]]:
+    #     con = await self.connection()
+    #     cur = con.cursor()
+    #     await cur.execute(query=SELECT_EXECUTORS)
+    #     result = await cur.fetchall()
+    #     await con.close()
+    #     return result
+
+    async def select_custom_requests(
+            self,
+            status_id: int = 0,
+            department_id: int = 0,
+            sdate: Optional[dt.datetime] = None,
+            edate: dt.datetime = dt.datetime.now()) -> List[Tuple[str]]:
+        if not sdate:
+            sdate = dt.datetime(
+                year=edate.year, month=edate.month, day=edate.day)
+        con = await self.connection()
+        cur = con.cursor()
+        await cur.execute(
+            query=SELECT_CUSTOM_REQUESTS,
+            params={
+                Request().STATUS_ID: status_id,
+                Request().DEPARTMENT_ID: department_id,
+                "sdate": sdate,
+                "edate": edate
+            })
         result = await cur.fetchall()
         await con.close()
         return result

@@ -180,3 +180,87 @@ LEFT JOIN done_requests AS dreq
 LEFT JOIN all_requests AS areq
     ON dep.id = areq.department_id;
 """
+SELECT_ADMINS = f"""
+SELECT
+    --{Employee().TELEGRAM_ID},
+    {Employee().PHONE},
+    COALESCE({Employee().FULLNAME}, 'Не указано'),
+    COALESCE({Employee().USERNAME}, 'Не указано')
+FROM {Secrets.SCHEMA_NAME}.{Employee()}
+WHERE {Employee().ISADMIN} = TRUE
+ORDER BY {Employee().ID};
+"""
+SELECT_EXECUTORS = f"""
+SELECT
+    --{Employee().TELEGRAM_ID},
+    {Employee().PHONE},
+    COALESCE({Employee().FULLNAME}, 'Не указано'),
+    COALESCE({Employee().USERNAME}, 'Не указано')
+FROM {Secrets.SCHEMA_NAME}.{Employee()}
+WHERE {Employee().ISEXECUTOR} = TRUE
+ORDER BY {Employee().ID};
+"""
+SELECT_CUSTOM_REQUESTS = f"""
+WITH requests_by_status AS (
+    SELECT
+        {Request().ID},
+        {Request().CREATE_DATE},
+        {Request().DEPARTMENT_ID},
+        {Request().FLOOR_ID},
+        {Request().ZONE_ID},
+        {Request().BTYPE_ID},
+        {Request().MESSAGE_ID},
+        {Request().CREATOR},
+        {Request().DESCRIPTION},
+        {Request().FILEID},
+        {Request().STATUS_ID},
+        {Request().EXECUTOR_ID}
+    FROM {Secrets.SCHEMA_NAME}.{Request()}
+    WHERE (0 = %({Request().STATUS_ID})s
+            OR {Request().STATUS_ID} = %({Request().STATUS_ID})s)
+        AND (0 = %({Request().DEPARTMENT_ID})s
+                OR {Request().DEPARTMENT_ID} = %({Request().DEPARTMENT_ID})s)
+        AND {Request().CREATE_DATE} BETWEEN %(sdate)s AND %(edate)s)
+SELECT
+    --rbs.{Request().ID},
+    rbs.{Request().CREATE_DATE},
+    --rbs.{Request().DEPARTMENT_ID},
+    dp.{Department().NAME},
+    --rbs.{Request().FLOOR_ID},
+    fl.{Floor().NAME},
+    --rbs.{Request().ZONE_ID},
+    zn.{Zone().NAME},
+    --rbs.{Request().BTYPE_ID},
+    bt.{Btype().NAME},
+    rbs.{Request().MESSAGE_ID},
+    rbs.{Request().CREATOR},
+    --cemp.{Employee().ID},
+    --cemp.{Employee().ISADMIN},
+    cemp.{Employee().PHONE},
+    cemp.{Employee().FULLNAME},
+    cemp.{Employee().USERNAME},
+    rbs.{Request().DESCRIPTION},
+    rbs.{Request().FILEID},
+    --sts.{Status().ID},
+    sts.{Status().NAME},
+    --eemp.{Employee().ID},
+    --eemp.{Employee().ISADMIN},
+    eemp.{Employee().PHONE},
+    eemp.{Employee().FULLNAME},
+    eemp.{Employee().USERNAME}
+FROM requests_by_status AS rbs
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Department()} AS dp
+    ON rbs.{Request().DEPARTMENT_ID} = dp.{Department().ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Floor()} AS fl
+    ON rbs.{Request().FLOOR_ID} = fl.{Floor().ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Zone()} AS zn
+    ON rbs.{Request().ZONE_ID} = zn.{Zone().ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Btype()} AS bt
+    ON rbs.{Request().BTYPE_ID} = bt.{Btype().ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Employee()} AS cemp
+    ON rbs.{Request().CREATOR} = cemp.{Employee().TELEGRAM_ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Status()} AS sts
+    ON rbs.{Request().STATUS_ID} = sts.{Status().ID}
+LEFT JOIN {Secrets.SCHEMA_NAME}.{Employee()} AS eemp
+    ON rbs.{Request().EXECUTOR_ID} = eemp.{Employee().TELEGRAM_ID};
+"""

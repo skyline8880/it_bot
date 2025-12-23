@@ -38,3 +38,11 @@ class BackMenu(CallbackData, prefix='back'):
 
 class ServiceActionMenu(CallbackData, prefix='serv_act'):
     act_type: int
+
+
+class ReportRequestPeriod(CallbackData, prefix='rperiod'):
+    period_id: int
+
+
+class ReportRequestStatus(CallbackData, prefix='rstatus'):
+    status_id: int

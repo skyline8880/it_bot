@@ -12,11 +12,21 @@ def admin_menu():
         sep='\n')
 
 
-def admin_or_executor_menu(act_lvl1):
+def admin_or_executor_menu(act_lvl1, custom_list):
+    msg_list = []
+    for id, line in enumerate(custom_list, start=1):
+        msg = markdown.text(
+            markdown.markdown_decoration.quote(f"{id}."),
+            markdown.markdown_decoration.code(f"{line[0]}"),
+            markdown.markdown_decoration.quote(f"- {line[1]} -"),
+            markdown.markdown_decoration.quote(line[2]),
+        )
+        msg_list.append(msg)
     position = "администратора" if int(act_lvl1) == 1 else "специалиста"
+    msg_list.append(markdown.markdown_decoration.quote(
+        f'\nДобавьте или удалите {position}')),
     return markdown.text(
-        markdown.markdown_decoration.quote(
-            f'Добавьте или удалите {position}'),
+        *msg_list,
         sep='\n')
 
 

@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery, Message
 from bot.bot import bot
 from craft.api import CraftPocket
 from craft.host import RemoteServer
+from database.database import Database
 from filters.callback_filters import (AddRemoveAct, AdminCD, AdminMenu,
                                       BackMenu, ServiceActionMenu,
                                       SystemServiceMenu)
@@ -44,9 +45,14 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
             text="Выберите службу",
             reply_markup=await create_system_services_button()
         )
+    elif int(act_id) == 6:
+        await query.answer(act_id)
+        return
+    db = Database()
     await state.set_state(AdminAct.addremlvl2)
+    custom_list = await db.select_admins_or_executors(act=int(act_id))
     await query.message.answer(
-        text=admin_or_executor_menu(act_id),
+        text=admin_or_executor_menu(act_id, custom_list),
         reply_markup=await create_addremove_buttons()
     )
 

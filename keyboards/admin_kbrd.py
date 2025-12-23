@@ -1,7 +1,8 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from filters.callback_filters import (AddRemoveAct, AdminCD, AdminMenu,
-                                      BackMenu, ServiceActionMenu,
+                                      BackMenu, ReportRequestPeriod,
+                                      ReportRequestStatus, ServiceActionMenu,
                                       SystemServiceMenu)
 
 to_menu_button = [
@@ -27,7 +28,8 @@ async def create_admin_buttons():
             ["Специалисты", 2],
             ["Создать заявку", 3],
             ["Статистика", 4],
-            ["Проверка служб", 5]]:
+            ["Проверка служб", 5],
+            ["Отчеты", 6]]:
         buttons.append(
             [
                 InlineKeyboardButton(
@@ -118,6 +120,46 @@ async def create_service_actions_button():
         )
     return InlineKeyboardMarkup(
         row_width=2,
+        inline_keyboard=[
+            buttons,
+            back_button
+        ])
+
+
+async def create_period_button():
+    buttons = []
+    for button_text, act_type in [
+            ["Текущий месяц", 1],
+            ["Прошлый месяц", 2],
+            ["Установить период", 3]]:
+        buttons.append(
+            InlineKeyboardButton(
+                text=button_text,
+                callback_data=ReportRequestPeriod(
+                    period_id=act_type).pack())
+        )
+    return InlineKeyboardMarkup(
+        row_width=1,
+        inline_keyboard=[
+            buttons,
+            back_button
+        ])
+
+
+async def create_status_button():
+    buttons = []
+    for button_text, act_type in [
+            ["Все", 1],
+            ["Активные", 2],
+            ["Завершенные", 3]]:
+        buttons.append(
+            InlineKeyboardButton(
+                text=button_text,
+                callback_data=ReportRequestStatus(
+                    status_id=act_type).pack())
+        )
+    return InlineKeyboardMarkup(
+        row_width=1,
         inline_keyboard=[
             buttons,
             back_button

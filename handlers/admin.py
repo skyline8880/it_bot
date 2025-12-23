@@ -1,4 +1,7 @@
+import re
+
 from aiogram import Router
+from aiogram.enums.content_type import ContentType
 from aiogram.filters import or_f
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -8,18 +11,20 @@ from craft.api import CraftPocket
 from craft.host import RemoteServer
 from database.database import Database
 from filters.callback_filters import (AddRemoveAct, AdminCD, AdminMenu,
-                                      BackMenu, ServiceActionMenu,
+                                      BackMenu, ReportRequestPeriod,
+                                      ReportRequestStatus, ServiceActionMenu,
                                       SystemServiceMenu)
 from filters.filters import IsAdmin, IsDev, IsPrivate
 from keyboards.admin_kbrd import (create_addremove_buttons,
-                                  create_admin_buttons,
+                                  create_admin_buttons, create_period_button,
                                   create_service_actions_button,
+                                  create_status_button,
                                   create_system_services_button)
 from keyboards.cancel_kbrd import create_cancel_button
 from keyboards.depart_kbrd import create_depart_buttons
 from messages.messages import (admin_menu, admin_or_executor_menu,
                                enter_phone_menu, start_menu)
-from states.states import AdminAct, DepartChoice
+from states.states import AdminAct, CustomPeriod, DepartChoice, ReportAct
 
 router = Router()
 
@@ -46,8 +51,10 @@ async def admin_act(query: CallbackQuery, state: FSMContext):
             reply_markup=await create_system_services_button()
         )
     elif int(act_id) == 6:
-        await query.answer(act_id)
-        return
+        return await query.message.answer(
+            text="Выберите период",
+            reply_markup=await create_period_button()
+        )
     db = Database()
     await state.set_state(AdminAct.addremlvl2)
     custom_list = await db.select_admins_or_executors(act=int(act_id))
@@ -170,6 +177,52 @@ async def service_act(query: CallbackQuery, state: FSMContext):
         text="Выберите действие",
         reply_markup=await create_service_actions_button()
     )
+
+
+@router.callback_query(
+    ReportRequestPeriod.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
+async def report_period_act(query: CallbackQuery, state: FSMContext):
+    await query.answer("Выполняю")
+    _, act_id = query.data.split(":")
+    await state.set_state(ReportAct.period)
+    await state.update_data(period=act_id)
+    await query.message.delete()
+    if int(act_id) == 3:
+        await state.set_state(CustomPeriod.period)
+        return await query.message.answer(
+            text="Укажите период",
+            reply_markup=await create_cancel_button()
+        )
+    await state.set_state(ReportAct.status)
+    return await query.message.answer(
+        text="Выберите статус заявок",
+        reply_markup=await create_status_button()
+    )
+
+
+@router.callback_query(
+    ReportRequestStatus.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
+async def report_status_act(query: CallbackQuery, state: FSMContext):
+    await query.answer("Выполняю")
+    _, act_id = query.data.split(":")
+    await state.update_data(status=act_id)
+    await query.message.delete()
+    data = await state.get_data()
+    print(data)
+
+
+@router.message(CustomPeriod.period, or_f(IsAdmin(), IsDev()), IsPrivate())
+async def custom_period_input(message: Message, state: FSMContext):
+    if message.content_type != ContentType.TEXT.value:
+        await message.delete()
+        return message.answer("Введите текст")
+    data = await state.get_data()
+    temp = re.findall(
+        pattern=r'(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0,1,2])\.(19|20)\d{2}',
+        string=message.text)
+    if not temp or len(temp) < 2:
+        return message.reply("Введите корректный формат даты")
+    print(data)
 
 
 @router.message(IsPrivate())

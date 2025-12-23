@@ -18,3 +18,12 @@ class AdminAct(StatesGroup):
     addremlvl2 = State()
     msg_id = State()
     phone = State()
+
+
+class ReportAct(StatesGroup):
+    period = State()
+    status = State()
+
+
+class CustomPeriod(StatesGroup):
+    period = State()

@@ -131,19 +131,17 @@ async def create_period_button():
     for button_text, act_type in [
             ["Текущий месяц", 1],
             ["Прошлый месяц", 2],
-            ["Установить период", 3]]:
+            ["Выбрать период", 3]]:
         buttons.append(
-            InlineKeyboardButton(
+            [InlineKeyboardButton(
                 text=button_text,
                 callback_data=ReportRequestPeriod(
-                    period_id=act_type).pack())
+                    period_id=act_type).pack())]
         )
+    buttons.append(to_menu_button)
     return InlineKeyboardMarkup(
         row_width=1,
-        inline_keyboard=[
-            buttons,
-            back_button
-        ])
+        inline_keyboard=buttons)
 
 
 async def create_status_button():
@@ -153,14 +151,12 @@ async def create_status_button():
             ["Активные", 2],
             ["Завершенные", 3]]:
         buttons.append(
-            InlineKeyboardButton(
+            [InlineKeyboardButton(
                 text=button_text,
                 callback_data=ReportRequestStatus(
-                    status_id=act_type).pack())
+                    status_id=act_type).pack())]
         )
+    buttons.append(to_menu_button)
     return InlineKeyboardMarkup(
         row_width=1,
-        inline_keyboard=[
-            buttons,
-            back_button
-        ])
+        inline_keyboard=buttons)

@@ -11,7 +11,7 @@ exclude =
     old,
     build,
     dist,
-    test.py,
+    test*.py,
     qr*.py,
     QR/
     data.py,

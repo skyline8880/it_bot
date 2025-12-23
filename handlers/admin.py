@@ -1,3 +1,4 @@
+import datetime as dt
 import re
 
 from aiogram import Router
@@ -222,7 +223,16 @@ async def custom_period_input(message: Message, state: FSMContext):
         string=message.text)
     if not temp or len(temp) < 2:
         return message.reply("Введите корректный формат даты")
+    sdate = dt.datetime(
+        year=int(temp[0][-1]),
+        month=int(temp[0][-2]),
+        day=int(temp[0][-3]))
+    edate = dt.datetime(
+        year=int(temp[-1][-1]),
+        month=int(temp[-1][-2]),
+        day=int(temp[-1][-3]))
     print(data)
+    await state.update_data(period=(sdate, edate))
 
 
 @router.message(IsPrivate())

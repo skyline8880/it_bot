@@ -25,7 +25,7 @@ from keyboards.cancel_kbrd import create_cancel_button
 from keyboards.depart_kbrd import create_depart_buttons
 from messages.messages import (admin_menu, admin_or_executor_menu,
                                enter_phone_menu, start_menu)
-from states.states import AdminAct, CustomPeriod, DepartChoice, ReportAct
+from states.states import AdminAct, DepartChoice, ReportAct
 
 router = Router()
 
@@ -189,13 +189,56 @@ async def report_period_act(query: CallbackQuery, state: FSMContext):
     await state.update_data(period=act_id)
     await query.message.delete()
     if int(act_id) == 3:
-        await state.set_state(CustomPeriod.period)
-        return await query.message.answer(
+        msg = await query.message.answer(
             text="Укажите период",
             reply_markup=await create_cancel_button()
         )
+        await state.update_data(inputmsg=msg.message_id)
+        return await state.set_state(ReportAct.prange)
+    today = dt.datetime.now()
+    if int(act_id) == 1:
+        fday_month = today.replace(day=1)
+        lday_month = today
+        print(fday_month, lday_month)
+    elif int(act_id) == 2:
+        pass
+    # await state.update_data(prange=(sdate, edate))
     await state.set_state(ReportAct.status)
     return await query.message.answer(
+        text="Выберите статус заявок",
+        reply_markup=await create_status_button()
+    )
+
+
+@router.message(ReportAct.prange, or_f(IsAdmin(), IsDev()), IsPrivate())
+async def custom_period_input(message: Message, state: FSMContext):
+    if message.content_type != ContentType.TEXT.value:
+        await message.delete()
+        return message.answer("Введите текст")
+    temp = re.findall(
+        pattern=r'(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0,1,2])\.(19|20)\d{2}',
+        string=message.text)
+    if not temp or len(temp) < 2:
+        return message.reply("Введите корректный формат даты")
+    data = await state.get_data()
+    sdate = dt.datetime(
+        year=int(temp[0][-1]),
+        month=int(temp[0][-2]),
+        day=int(temp[0][-3]))
+    edate = dt.datetime(
+        year=int(temp[-1][-1]),
+        month=int(temp[-1][-2]),
+        day=int(temp[-1][-3]))
+    await state.update_data(prange=(sdate, edate))
+    await state.set_state(ReportAct.status)
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=int(data["inputmsg"])
+        )
+    except Exception:
+        pass
+    return await message.answer(
         text="Выберите статус заявок",
         reply_markup=await create_status_button()
     )
@@ -210,29 +253,6 @@ async def report_status_act(query: CallbackQuery, state: FSMContext):
     await query.message.delete()
     data = await state.get_data()
     print(data)
-
-
-@router.message(CustomPeriod.period, or_f(IsAdmin(), IsDev()), IsPrivate())
-async def custom_period_input(message: Message, state: FSMContext):
-    if message.content_type != ContentType.TEXT.value:
-        await message.delete()
-        return message.answer("Введите текст")
-    data = await state.get_data()
-    temp = re.findall(
-        pattern=r'(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0,1,2])\.(19|20)\d{2}',
-        string=message.text)
-    if not temp or len(temp) < 2:
-        return message.reply("Введите корректный формат даты")
-    sdate = dt.datetime(
-        year=int(temp[0][-1]),
-        month=int(temp[0][-2]),
-        day=int(temp[0][-3]))
-    edate = dt.datetime(
-        year=int(temp[-1][-1]),
-        month=int(temp[-1][-2]),
-        day=int(temp[-1][-3]))
-    print(data)
-    await state.update_data(period=(sdate, edate))
 
 
 @router.message(IsPrivate())

@@ -23,7 +23,5 @@ class AdminAct(StatesGroup):
 class ReportAct(StatesGroup):
     period = State()
     status = State()
-
-
-class CustomPeriod(StatesGroup):
-    period = State()
+    inputmsg = State()
+    prange = State()

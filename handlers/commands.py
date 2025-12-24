@@ -1,4 +1,3 @@
-from secrets.secrets import Secrets
 from urllib.parse import unquote
 
 from aiogram import F, Router
@@ -18,6 +17,7 @@ from messages.messages import (admin_menu, invalid_qr_format,
                                request_sent_success, scan_qr_message,
                                start_menu, wrong_sample)
 from middleware.auth_middleware import UserAuthFilter
+from secret_data.secrets import Secrets
 from states.states import DepartChoice
 
 router = Router()

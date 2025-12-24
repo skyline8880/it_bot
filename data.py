@@ -1,5 +1,3 @@
-from secrets.secrets import Secrets
-
 from database.database import (INSERT_INTO_EMPLOYEE, UPDATE_EMPLOYEE_IS_ADMIN,
                                UPDATE_EMPLOYEE_IS_EXECUTOR, Database)
 from database.tables.department import Department
@@ -8,6 +6,7 @@ from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.status import Status
 from database.tables.zone import Zone
+from secret_data.secrets import Secrets
 
 db = Database()
 

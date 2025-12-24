@@ -1,4 +1,3 @@
-from secrets.secrets import Secrets
 from typing import Any, Union
 
 from aiogram import Bot
@@ -12,6 +11,7 @@ from keyboards.admin_kbrd import create_to_menu_button
 from keyboards.request_kbrd import create_request_buttons
 from messages.messages import (addremm_opreation_success, request_form,
                                required_phone, stats, undefined_phone)
+from secret_data.secrets import Secrets
 
 
 class ITBot(Bot):

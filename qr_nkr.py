@@ -4,7 +4,6 @@ import json
 import sys
 import urllib
 import urllib.parse
-from secrets.secrets import Secrets
 
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
@@ -23,6 +22,7 @@ from database.tables.employee import Employee
 from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.zone import Zone
+from secret_data.secrets import Secrets
 from session.session import Session
 
 if sys.platform == 'win32':

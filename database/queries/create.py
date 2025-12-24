@@ -1,5 +1,3 @@
-from secrets.secrets import Secrets
-
 from database.tables.btype import Btype
 from database.tables.department import Department
 from database.tables.employee import Employee
@@ -7,6 +5,7 @@ from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.status import Status
 from database.tables.zone import Zone
+from secret_data.secrets import Secrets
 
 CREATE = f"""
     CREATE SCHEMA IF NOT EXISTS {Secrets.SCHEMA_NAME};

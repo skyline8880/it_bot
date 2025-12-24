@@ -1,7 +1,8 @@
-from secrets.secrets import Secrets
 from typing import Tuple
 
 import psycopg
+
+from secret_data.secrets import Secrets
 
 
 class DBConnection():

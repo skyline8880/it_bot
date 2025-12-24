@@ -1,9 +1,10 @@
 import datetime as dt
-from secrets.secrets import Secrets
 
 import paramiko
 from aiogram.types import CallbackQuery
 from aiogram.utils import markdown
+
+from secret_data.secrets import Secrets
 
 
 class RemoteServer:

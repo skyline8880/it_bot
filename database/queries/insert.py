@@ -1,7 +1,6 @@
-from secrets.secrets import Secrets
-
 from database.tables.employee import Employee
 from database.tables.request import Request
+from secret_data.secrets import Secrets
 
 INSERT_INTO_EMPLOYEE = f"""
     INSERT INTO {Secrets.SCHEMA_NAME}.{Employee()} (

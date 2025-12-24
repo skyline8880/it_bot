@@ -2,10 +2,11 @@ import datetime as dt
 import re
 
 from aiogram import Router
+from aiogram.enums.chat_action import ChatAction
 from aiogram.enums.content_type import ContentType
 from aiogram.filters import or_f
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from bot.bot import bot
 from craft.api import CraftPocket
@@ -197,12 +198,12 @@ async def report_period_act(query: CallbackQuery, state: FSMContext):
         return await state.set_state(ReportAct.prange)
     today = dt.datetime.now()
     if int(act_id) == 1:
-        fday_month = today.replace(day=1)
-        lday_month = today
-        print(fday_month, lday_month)
+        sdate = today.replace(day=1)
+        edate = today
     elif int(act_id) == 2:
-        pass
-    # await state.update_data(prange=(sdate, edate))
+        edate = today.replace(day=1) - dt.timedelta(days=1)
+        sdate = edate.replace(day=1)
+    await state.update_data(prange=(sdate, edate))
     await state.set_state(ReportAct.status)
     return await query.message.answer(
         text="Выберите статус заявок",
@@ -216,8 +217,9 @@ async def custom_period_input(message: Message, state: FSMContext):
         await message.delete()
         return message.answer("Введите текст")
     temp = re.findall(
-        pattern=r'(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0,1,2])\.(19|20)\d{2}',
+        pattern=r'(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0,1,2])\.(19|20\d{2})',
         string=message.text)
+    print(temp)
     if not temp or len(temp) < 2:
         return message.reply("Введите корректный формат даты")
     data = await state.get_data()
@@ -229,6 +231,7 @@ async def custom_period_input(message: Message, state: FSMContext):
         year=int(temp[-1][-1]),
         month=int(temp[-1][-2]),
         day=int(temp[-1][-3]))
+    print(sdate, edate)
     await state.update_data(prange=(sdate, edate))
     await state.set_state(ReportAct.status)
     try:
@@ -251,8 +254,24 @@ async def report_status_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(":")
     await state.update_data(status=act_id)
     await query.message.delete()
+    db = Database()
     data = await state.get_data()
-    print(data)
+    sdate, edate = data["prange"]
+    fullpath, filename = await db.select_custom_requests(
+        status_id=int(data["status"]),
+        department_id=0,
+        sdate=sdate,
+        edate=edate
+    )
+    await query.answer('Отчёт формируется')
+    await bot.send_chat_action(
+        chat_id=query.message.chat.id,
+        action=ChatAction.UPLOAD_DOCUMENT
+    )
+    await bot.send_document(
+        chat_id=query.message.chat.id,
+        document=FSInputFile(path=fullpath, filename=filename),
+        caption="Отчет готов")
 
 
 @router.message(IsPrivate())

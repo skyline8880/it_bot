@@ -1,4 +1,3 @@
-from secrets.secrets import Secrets
 from urllib.parse import unquote
 
 from aiogram import F, Router
@@ -16,6 +15,7 @@ from messages.messages import (equipment_not_found, invalid_qr_format,
                                scan_qr_message, start_instruction,
                                wrong_sample)
 from middleware.auth_middleware import UserAuthFilter
+from secret_data.secrets import Secrets
 
 router = Router()
 router.message.middleware(UserAuthFilter())

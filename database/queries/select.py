@@ -1,5 +1,3 @@
-from secrets.secrets import Secrets
-
 from database.tables.btype import Btype
 from database.tables.department import Department
 from database.tables.employee import Employee
@@ -7,6 +5,7 @@ from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.status import Status
 from database.tables.zone import Zone
+from secret_data.secrets import Secrets
 
 SELECT_DEPARTMENTS = f"""
     SELECT
@@ -216,11 +215,17 @@ WITH requests_by_status AS (
         {Request().STATUS_ID},
         {Request().EXECUTOR_ID}
     FROM {Secrets.SCHEMA_NAME}.{Request()}
-    WHERE (0 = %({Request().STATUS_ID})s
-            OR {Request().STATUS_ID} = %({Request().STATUS_ID})s)
+    WHERE (1 = %({Request().STATUS_ID})s
+            OR (
+                2 = %({Request().STATUS_ID})s
+                    AND {Request().STATUS_ID} < 3)
+            OR (
+                3 = %({Request().STATUS_ID})s
+                    AND {Request().STATUS_ID} = %({Request().STATUS_ID})s))
         AND (0 = %({Request().DEPARTMENT_ID})s
                 OR {Request().DEPARTMENT_ID} = %({Request().DEPARTMENT_ID})s)
-        AND {Request().CREATE_DATE} BETWEEN %(sdate)s AND %(edate)s)
+        AND {Request().CREATE_DATE} BETWEEN %(sdate)s AND %(edate)s
+    ORDER BY {Request().CREATE_DATE})
 SELECT
     --rbs.{Request().ID},
     rbs.{Request().CREATE_DATE},
@@ -232,15 +237,16 @@ SELECT
     zn.{Zone().NAME},
     --rbs.{Request().BTYPE_ID},
     bt.{Btype().NAME},
-    rbs.{Request().MESSAGE_ID},
-    rbs.{Request().CREATOR},
+    rbs.{Request().MESSAGE_ID} || '/' || rbs.{Request().CREATOR} AS req_id,
+    --rbs.{Request().MESSAGE_ID},
+    --rbs.{Request().CREATOR},
     --cemp.{Employee().ID},
     --cemp.{Employee().ISADMIN},
     cemp.{Employee().PHONE},
     cemp.{Employee().FULLNAME},
     cemp.{Employee().USERNAME},
     rbs.{Request().DESCRIPTION},
-    rbs.{Request().FILEID},
+    --rbs.{Request().FILEID},
     --sts.{Status().ID},
     sts.{Status().NAME},
     --eemp.{Employee().ID},

@@ -1,7 +1,8 @@
 import datetime as dt
-from secrets.secrets import Secrets
+import os
 from typing import List, Optional, Tuple, Union
 
+import pandas as pd
 from aiogram.types import Message
 from psycopg.errors import UniqueViolation
 
@@ -28,6 +29,7 @@ from database.tables.floor import Floor
 from database.tables.request import Request
 from database.tables.status import Status
 from database.tables.zone import Zone
+from secret_data.secrets import Secrets
 
 
 class Database():
@@ -249,7 +251,47 @@ class Database():
             })
         result = await cur.fetchall()
         await con.close()
-        return result
+        result = pd.DataFrame(
+            data=result,
+            columns=[
+                "создан", "клуб", "этаж", "зона",
+                "поломка", "номер заявки", "телефон постановщика",
+                "имя постановщика", "никнейм постановщика", "описание",
+                # "код файла",
+                "статус", "телефон специалиста",
+                "имя специалиста", "никнейм специалиста",
+            ])
+        styled = result.style.set_properties(**{'text-align': 'center'})
+        with pd.ExcelWriter(os.path.join("reports", "Заявки.xlsx")) as writer:
+            styled.to_excel(
+                writer, index=False,
+                sheet_name=(f'{sdate.date()} - {edate.date()}'))
+            wb = writer.book
+            ws = writer.sheets[f'{sdate.date()} - {edate.date()}']
+            header_format = wb.add_format({
+                'bold': True,
+                'text_wrap': False,
+                'valign': 'center',
+                'align': 'center',
+                'fg_color': '#f2f2e1',
+                'border': 1,
+                'color': '#0e0e12'})
+            for col_num, value in enumerate(result.columns):
+                ws.write(0, col_num, value, header_format)
+                max_length = len(value) + 2
+                for line in result[value]:
+                    if line is not None:
+                        if isinstance(line, dt.date):
+                            line = dt.datetime.strftime(
+                                line, '%Y-%m-%d %H:%M:%S')
+                            max_length = len(line) + 2
+                            break
+                        if max_length < len(line):
+                            max_length = len(line) + 2
+                ws.set_column(col_num, col_num, max_length)
+        return (
+            os.path.join("reports", "Заявки.xlsx"),
+            f"Заявки {sdate.date()} - {edate.date()}.xlsx")
 
     async def insert_employee(self, message: Message) -> Tuple:
         (

@@ -152,18 +152,18 @@ class ITBot(Bot):
 
     async def create_request(
             self, request_data: list, message: Message) -> bool:
-        # GROUPS = {
-        #     1: Secrets.MSK_IT_GROUP,
-        #     2: Secrets.VLK_IT_GROUP,
-        #     3: Secrets.NKR_IT_GROUP,
-        #     4: Secrets.BUT_IT_GROUP,
-        # }
         GROUPS = {
-            1: -1002305344615,
-            2: -1002305344615,
-            3: -1002305344615,
-            4: -1002305344615,
+            1: Secrets.MSK_IT_GROUP,
+            2: Secrets.VLK_IT_GROUP,
+            3: Secrets.NKR_IT_GROUP,
+            4: Secrets.BUT_IT_GROUP,
         }
+        # GROUPS = {
+        #     1: -1002305344615,
+        #     2: -1002305344615,
+        #     3: -1002305344615,
+        #     4: -1002305344615,
+        # }
         to_chat_id = GROUPS[request_data[0]]
         db = Database()
         match message.content_type:

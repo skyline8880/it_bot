@@ -43,6 +43,7 @@ async def create_request(message: Message, state: FSMContext):
         await message.reply(request_sent_success())
     else:
         await message.reply(request_error())
+    await state.clear()
 
 
 @router.callback_query(CancelCD.filter(), IsPrivate())

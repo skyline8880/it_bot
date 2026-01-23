@@ -1,5 +1,7 @@
 import datetime as dt
 
+from aiogram.enums.chat_type import ChatType
+from aiogram.types import Message
 from aiogram.utils import markdown
 from aiogram.utils.formatting import (Bold, as_key_value, as_list,
                                       as_marked_section)
@@ -10,6 +12,39 @@ def admin_menu():
         markdown.markdown_decoration.quote(
             'Панель администратора'),
         sep='\n')
+
+
+def message_placeholder(
+        message: Message, users_data, text, message_id, chat_id):
+    (
+        employee_id,
+        os_admin,
+        phone,
+        telegram_id,
+        full_name,
+        username,
+        is_executor
+    ) = users_data
+    code_info = markdown.text(
+        markdown.markdown_decoration.quote('код:'),
+        markdown.markdown_decoration.code(f'{message_id}/{chat_id}'))
+    if message.chat.type != ChatType.PRIVATE:
+        sender_obj = markdown.text(
+            markdown.markdown_decoration.quote('группа:'),
+            markdown.markdown_decoration.quote(message.chat.title))
+        code_info += f'\n{sender_obj}'
+    basic_info = markdown.text(
+        markdown.text(
+            markdown.markdown_decoration.quote('сотрудник:'),
+            markdown.markdown_decoration.quote(f'{full_name} | {username}')),
+        markdown.text(
+            markdown.markdown_decoration.quote('телефон:'),
+            markdown.markdown_decoration.code(phone)),
+        markdown.text(
+            markdown.markdown_decoration.quote('сообщение:'),
+            markdown.markdown_decoration.quote(text)),
+        sep='\n')
+    return f'{code_info}\n{basic_info}'
 
 
 def admin_or_executor_menu(act_lvl1, custom_list):

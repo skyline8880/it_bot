@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from cachetools import TTLCache
 
-from bot.bot import ITBot
+from bot.bot import bot
 from database.database import Database
 from filters.filters import IsAdmin, IsDev, IsPrivate, StateIsActive
 from keyboards.admin_kbrd import create_admin_buttons
@@ -80,7 +80,9 @@ async def handle_qr_url(message: Message, state: FSMContext):
 
 
 @router.message(IsPrivate(), ~StateIsActive())
-async def handle_private_message(message: Message, bot: ITBot):
+async def handle_private_message(message: Message):
+    if await bot.chating(message=message):
+        return
     user_id = message.from_user.id
     if user_id not in qr_cache:
         await message.answer(scan_qr_message())
@@ -124,3 +126,8 @@ async def handle_private_message(message: Message, bot: ITBot):
         await message.answer(processing_error())
     finally:
         qr_cache.pop(user_id, None)
+
+
+@router.message(~StateIsActive())
+async def handle_message(message: Message, state: FSMContext):
+    await bot.chating(message=message)

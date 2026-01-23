@@ -1,3 +1,4 @@
+import re
 from typing import Any, Union
 
 from aiogram import Bot
@@ -9,8 +10,9 @@ from aiogram.types import BotCommand, CallbackQuery, Message
 from database.database import Database
 from keyboards.admin_kbrd import create_to_menu_button
 from keyboards.request_kbrd import create_request_buttons
-from messages.messages import (addremm_opreation_success, request_form,
-                               required_phone, stats, undefined_phone)
+from messages.messages import (addremm_opreation_success, message_placeholder,
+                               request_form, required_phone, stats,
+                               undefined_phone)
 from secret_data.secrets import Secrets
 
 
@@ -37,6 +39,98 @@ class ITBot(Bot):
                     command='admin', description='Панель администратора')
                 ])
 
+    async def define_cotent_type(
+            self,
+            message: Message,
+            users_data,
+            message_id,
+            to_chat_id):
+        msg_text = message.text
+        if message.content_type != ContentType.TEXT:
+            msg_text = message.caption
+        msg_text = '' if msg_text is None else msg_text
+        match message.content_type:
+            case ContentType.AUDIO.value:
+                file_id = message.audio.file_id
+                await self.send_audio(
+                    chat_id=to_chat_id,
+                    audio=file_id,
+                    caption=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case ContentType.DOCUMENT.value:
+                file_id = message.document.file_id
+                await self.send_document(
+                    chat_id=to_chat_id,
+                    document=file_id,
+                    caption=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case ContentType.PHOTO.value:
+                file_id = message.photo[0].file_id
+                await self.send_photo(
+                    chat_id=to_chat_id,
+                    photo=file_id,
+                    caption=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case ContentType.VIDEO.value:
+                file_id = message.video.file_id
+                await self.send_video(
+                    chat_id=to_chat_id,
+                    video=file_id,
+                    caption=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case ContentType.VOICE.value:
+                file_id = message.voice.file_id
+                await self.send_voice(
+                    chat_id=to_chat_id,
+                    voice=file_id,
+                    caption=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case ContentType.TEXT.value:
+                await self.send_message(
+                    chat_id=to_chat_id,
+                    text=message_placeholder(
+                        message=message,
+                        users_data=users_data,
+                        text=msg_text,
+                        message_id=message.message_id,
+                        chat_id=message.chat.id),
+                    reply_to_message_id=message_id,
+                    allow_sending_without_reply=True)
+            case _:
+                await message.delete()
+                return False
+        return True
+
     async def make_insert_into_db(
             self,
             request_data: str,
@@ -58,18 +152,18 @@ class ITBot(Bot):
 
     async def create_request(
             self, request_data: list, message: Message) -> bool:
-        GROUPS = {
-            1: Secrets.MSK_IT_GROUP,
-            2: Secrets.VLK_IT_GROUP,
-            3: Secrets.NKR_IT_GROUP,
-            4: Secrets.BUT_IT_GROUP,
-        }
         # GROUPS = {
-        #     1: -1002305344615,
-        #     2: -1002305344615,
-        #     3: -1002305344615,
-        #     4: -1002305344615,
+        #     1: Secrets.MSK_IT_GROUP,
+        #     2: Secrets.VLK_IT_GROUP,
+        #     3: Secrets.NKR_IT_GROUP,
+        #     4: Secrets.BUT_IT_GROUP,
         # }
+        GROUPS = {
+            1: -1002305344615,
+            2: -1002305344615,
+            3: -1002305344615,
+            4: -1002305344615,
+        }
         to_chat_id = GROUPS[request_data[0]]
         db = Database()
         match message.content_type:
@@ -266,6 +360,45 @@ class ITBot(Bot):
         await query.message.answer(
             text=stats(result),
             reply_markup=await create_to_menu_button())
+
+    async def chating(self, message: Message):
+        db = Database()
+        users_data = await db.select_employee_by_sign(message.from_user.id)
+        replied = message.reply_to_message
+        if not replied:
+            return
+        replied_text = replied.text
+        if replied.content_type != ContentType.TEXT:
+            replied_text = replied.caption
+        if not replied_text:
+            return
+        msg_data = re.findall(
+            pattern=r'\b(\D+)\s(\d+)/(-\d+|\d+)\b',
+            string=replied_text)
+        if not msg_data:
+            return
+        pattern_type, message_id, chat_id = msg_data[0]
+        print(msg_data)
+        print(pattern_type, message_id, chat_id)
+        # message_id = primary_id
+        # chat_id = secondary_id
+        # if str(pattern_type).lower() != 'код:':
+        #     (
+        #         message_id,
+        #         chat_id
+        #     ) = await db.get_deal_msg_id_and_creator_of_request(
+        #         department_id=primary_id,
+        #         bitrix_deal_id=secondary_id)
+        #     if message.chat.type == ChatType.PRIVATE:
+        #         message_id = await db.get_group_msg_id_of_request(
+        #             department_id=primary_id,
+        #             bitrix_deal_id=secondary_id)
+        #         chat_id = await self.group_id(department_id=int(primary_id))
+        return await self.define_cotent_type(
+            message=message,
+            users_data=users_data,
+            message_id=message_id,
+            to_chat_id=chat_id)
 
 
 bot = ITBot()

@@ -18,7 +18,7 @@ def message_placeholder(
         message: Message, users_data, text, message_id, chat_id):
     (
         employee_id,
-        os_admin,
+        is_admin,
         phone,
         telegram_id,
         full_name,

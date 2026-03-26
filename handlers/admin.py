@@ -146,10 +146,9 @@ async def choose_service_act(query: CallbackQuery, state: FSMContext):
 @router.callback_query(
     ServiceActionMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def service_act(query: CallbackQuery, state: FSMContext):
-    await query.answer("Выполняю")
     _, act_id = query.data.split(":")
     data = await state.get_data()
-    await query.message.delete()
+    
     SERVICES = {
         1: [2, 201, 2, 2967794077],
         2: [3, 3303, 2, 2967794077],
@@ -164,9 +163,12 @@ async def service_act(query: CallbackQuery, state: FSMContext):
     }
     lvl = int(data["addremlvl2"])
     service_id, point, act_type, card_number = SERVICES[lvl]
+    print(lvl, service_id, point, act_type, card_number)
     if int(act_id) == 1:
         if lvl > 4:
             return await query.answer("Не поддерживается!")
+        await query.answer("Выполняю")
+        await query.message.delete()
         craft_pocket = CraftPocket(
             dep_id=service_id,
             query=query)
@@ -174,6 +176,8 @@ async def service_act(query: CallbackQuery, state: FSMContext):
         await craft_pocket.pass_request(
             point=point, act_type=act_type, card_number=card_number)
     else:
+        await query.answer("Выполняю")
+        await query.message.delete()
         host = RemoteServer(service_id=service_id, query=query)
         await host.start_or_stop_service(
             service_name=host.service,

@@ -3,9 +3,11 @@ from typing import Any, Union
 
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums.content_type import ContentType
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.types import BotCommand, CallbackQuery, Message
+from aiohttp import BasicAuth
 
 from database.database import Database
 from keyboards.admin_kbrd import create_to_menu_button
@@ -15,20 +17,30 @@ from messages.messages import (addremm_opreation_success, message_placeholder,
                                undefined_phone)
 from secret_data.secrets import Secrets
 
+PROXY_URL = "socks5://proxy.ohana-fitness.ru:48448"
+PROXY_AUTH = BasicAuth(login="KholovS", password="Adm-BD@776!")
+
+
+session = AiohttpSession(proxy=(PROXY_URL, PROXY_AUTH))
 
 class ITBot(Bot):
     def __init__(
             self,
             token: str = Secrets.BOT_TOKEN,
-            session: None = None,
+            session: None = session,
             default: None = None,
+            #proxy=PROXY_URL,
+            #proxy_auth=PROXY_AUTH,
             **kwargs: Any) -> None:
         super().__init__(
             token=token,
             session=session,
             default=default,
+            #proxy=proxy,
+            #proxy_auth=proxy_auth,
             kwargs=kwargs)
         self.default = DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2)
+        print(self.session.proxy)
 
     async def command_init(self) -> None:
         await self.set_my_commands(

@@ -110,27 +110,25 @@ class RemoteServer:
             if type_act == "stop" else f"Запускаю службу: {service_name}")
         if is_reverse:
             command = f"systemctl {type_act} {service_name}"
-        print(msg_before)
-        print(command)
-        # await self.query.message.answer(
-        #     text=markdown.text(
-        #         markdown.markdown_decoration.quote(msg_before),
-        #         sep='\n')
-        # )
-        # msg_res, error = self.split_response(command=command)
-        # await self.query.message.answer(
-        #     text=markdown.text(
-        #         markdown.markdown_decoration.quote(msg_res),
-        #         sep='\n')
-        # )
-        # msg_after = (
-        #     "‼️Выполнено с ошибкой"
-        #     if error else "✅Выполнено успешно")
-        # await self.query.message.answer(
-        #     text=markdown.text(
-        #         markdown.markdown_decoration.quote(msg_after),
-        #         sep='\n')
-        # )
+        await self.query.message.answer(
+            text=markdown.text(
+                markdown.markdown_decoration.quote(msg_before),
+                sep='\n')
+        )
+        msg_res, error = self.split_response(command=command)
+        await self.query.message.answer(
+            text=markdown.text(
+                markdown.markdown_decoration.quote(msg_res),
+                sep='\n')
+        )
+        msg_after = (
+            "‼️Выполнено с ошибкой"
+            if error else "✅Выполнено успешно")
+        await self.query.message.answer(
+            text=markdown.text(
+                markdown.markdown_decoration.quote(msg_after),
+                sep='\n')
+        )
 
     def grep_pin_lstart_cmd_service(self, service_name: str) -> str:
         return self.split_response(

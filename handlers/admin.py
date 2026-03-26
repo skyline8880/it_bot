@@ -148,7 +148,6 @@ async def choose_service_act(query: CallbackQuery, state: FSMContext):
 async def service_act(query: CallbackQuery, state: FSMContext):
     _, act_id = query.data.split(":")
     data = await state.get_data()
-    
     SERVICES = {
         1: [2, 201, 2, 2967794077],
         2: [3, 3303, 2, 2967794077],
@@ -163,7 +162,6 @@ async def service_act(query: CallbackQuery, state: FSMContext):
     }
     lvl = int(data["addremlvl2"])
     service_id, point, act_type, card_number = SERVICES[lvl]
-    print(lvl, service_id, point, act_type, card_number)
     if int(act_id) == 1:
         if lvl > 4:
             return await query.answer("Не поддерживается!")
@@ -182,10 +180,10 @@ async def service_act(query: CallbackQuery, state: FSMContext):
         await host.start_or_stop_service(
             service_name=host.service,
             type_act="stop",
-            is_reverse=True if lvl == 11 else False)
+            is_reverse=True if service_id == 11 else False)
         await host.start_or_stop_service(
             service_name=host.service,
-            is_reverse=True if lvl == 11 else False)
+            is_reverse=True if service_id == 11 else False)
     await query.message.answer(
         text="Выберите действие",
         reply_markup=await create_service_actions_button()

@@ -73,10 +73,16 @@ async def create_system_services_button():
     buttons = []
     cnt = 1
     for button_text, act_type in [
-        ["CRAFT - МСК", 1],
-        ["CRAFT - ВЛК", 2],
-        ["CRAFT - НКР", 3],
-        ["CRAFT - БУН", 4],
+        ["CRAFT - СКУД - МСК", 1],
+        ["CRAFT - СКУД - ВЛК", 2],
+        ["CRAFT - СКУД - НКР", 3],
+        ["CRAFT - СКУД - БУН", 4],
+        ["CRAFT - Планшет - МСК", 5],
+        ["CRAFT - Планшет - ВЛК", 6],
+        ["CRAFT - Планшет - НКР", 7],
+        ["CRAFT - Планшет - БУН", 8],
+        ["CRAFT - API", 9],
+        ["‼️CRAFT - Firebird", 10]
         # ["AVI - МСК", 5],
         # ["AVI - ВЛК", 6],
         # ["AVI - НКР", 7],

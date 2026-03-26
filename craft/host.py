@@ -9,15 +9,21 @@ from secret_data.secrets import Secrets
 
 class RemoteServer:
     SERVICE = {
-        2: None,
+        2: "/opt/craft_pacs_2/bin/craft_pacs_2",
         3: "/opt/craft_pacs/bin/craft_pacs",
         4: "/opt/craft_pacs2/bin/craft_pacs2",
         5: "/opt/craft_pacs3/bin/craft_pacs3",
+        6: "/opt/n2o_craft/bin/n2o_craft2",
+        7: "/opt/n2o_craft/bin/n2o_craft3",
+        8: "/opt/n2o_craft/bin/n2o_craft4",
+        9: "/opt/n2o_craft/bin/n2o_craft5",
+        10: "/mnt/bckp/craft/bin/craft",
+        11: "firebird-superserver.service"
     }
 
     def __init__(
             self,
-            dep_id: int,
+            service_id: int,
             query: CallbackQuery,
             host: str = Secrets.HOST,
             username: str = Secrets.HOST_USERNAME,
@@ -25,7 +31,8 @@ class RemoteServer:
         self.host = host
         self.username = username
         self.password = password
-        self.service = self.SERVICE[dep_id]
+        self.service_id = service_id
+        self.service = self.SERVICE[service_id]
         self.query = query
 
     def connect_to_server(self) -> paramiko.SSHClient:
@@ -102,26 +109,28 @@ class RemoteServer:
             f"Останавливаю службу: {service_name}"
             if type_act == "stop" else f"Запускаю службу: {service_name}")
         if is_reverse:
-            command = f"{type_act} {service_name}"
-        await self.query.message.answer(
-            text=markdown.text(
-                markdown.markdown_decoration.quote(msg_before),
-                sep='\n')
-        )
-        msg_res, error = self.split_response(command=command)
-        await self.query.message.answer(
-            text=markdown.text(
-                markdown.markdown_decoration.quote(msg_res),
-                sep='\n')
-        )
-        msg_after = (
-            "‼️Выполнено с ошибкой"
-            if error else "✅Выполнено успешно")
-        await self.query.message.answer(
-            text=markdown.text(
-                markdown.markdown_decoration.quote(msg_after),
-                sep='\n')
-        )
+            command = f"systemctl {type_act} {service_name}"
+        print(msg_before)
+        print(command)
+        # await self.query.message.answer(
+        #     text=markdown.text(
+        #         markdown.markdown_decoration.quote(msg_before),
+        #         sep='\n')
+        # )
+        # msg_res, error = self.split_response(command=command)
+        # await self.query.message.answer(
+        #     text=markdown.text(
+        #         markdown.markdown_decoration.quote(msg_res),
+        #         sep='\n')
+        # )
+        # msg_after = (
+        #     "‼️Выполнено с ошибкой"
+        #     if error else "✅Выполнено успешно")
+        # await self.query.message.answer(
+        #     text=markdown.text(
+        #         markdown.markdown_decoration.quote(msg_after),
+        #         sep='\n')
+        # )
 
     def grep_pin_lstart_cmd_service(self, service_name: str) -> str:
         return self.split_response(

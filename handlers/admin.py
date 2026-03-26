@@ -131,7 +131,8 @@ async def back_act(query: CallbackQuery, state: FSMContext):
     SystemServiceMenu.filter(), or_f(IsAdmin(), IsDev()), IsPrivate())
 async def choose_service_act(query: CallbackQuery, state: FSMContext):
     _, sys_id = query.data.split(":")
-    if int(sys_id) > 4 or int(sys_id) < 2:
+    # if int(sys_id) > 4 or int(sys_id) < 2:
+    if int(sys_id) > 10 or int(sys_id) < 1:
         return await query.answer("Сервис недоступен")
     await query.answer("Выбрано")
     await query.message.delete()
@@ -150,31 +151,37 @@ async def service_act(query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await query.message.delete()
     SERVICES = {
-        1: [2, None, None, 2967794077],
+        1: [2, 201, 2, 2967794077],
         2: [3, 3303, 2, 2967794077],
         3: [4, 404, 2, 2967794077],
         4: [5, 502, 2, 2967794077],
-        5: [2, None, None, None],
-        6: [3, None, None, None],
-        7: [4, None, None, None],
-        8: [4, None, None, None],
+        5: [6, None, None, None],
+        6: [7, None, None, None],
+        7: [8, None, None, None],
+        8: [9, None, None, None],
+        9: [10, None, None, None],
+        10: [11, None, None, None],
     }
     lvl = int(data["addremlvl2"])
-    if lvl < 5:
-        dep_id, point, act_type, card_number = SERVICES[lvl]
-        if int(act_id) == 1:
-            craft_pocket = CraftPocket(
-                dep_id=dep_id,
-                query=query)
-            await craft_pocket.terminals()
-            await craft_pocket.pass_request(
-                point=point, act_type=act_type, card_number=card_number)
-        else:
-            host = RemoteServer(dep_id=dep_id, query=query)
-            await host.start_or_stop_service(
-                service_name=host.service, type_act="stop")
-            await host.start_or_stop_service(
-                service_name=host.service)
+    service_id, point, act_type, card_number = SERVICES[lvl]
+    if int(act_id) == 1:
+        if lvl > 4:
+            return await query.answer("Не поддерживается!")
+        craft_pocket = CraftPocket(
+            dep_id=service_id,
+            query=query)
+        await craft_pocket.terminals()
+        await craft_pocket.pass_request(
+            point=point, act_type=act_type, card_number=card_number)
+    else:
+        host = RemoteServer(service_id=service_id, query=query)
+        await host.start_or_stop_service(
+            service_name=host.service,
+            type_act="stop",
+            is_reverse=True if lvl == 11 else False)
+        await host.start_or_stop_service(
+            service_name=host.service,
+            is_reverse=True if lvl == 11 else False)
     await query.message.answer(
         text="Выберите действие",
         reply_markup=await create_service_actions_button()
